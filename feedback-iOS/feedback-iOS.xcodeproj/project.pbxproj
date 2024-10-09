@@ -39,7 +39,7 @@
 		2EA266802CB2A7800034BA4D /* Exceptions for "feedback-iOS" folder in "feedback-iOS" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				Application/Info.plist,
 			);
 			target = 2EA266572CB2A77E0034BA4D /* feedback-iOS */;
 		};
