@@ -19,13 +19,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     let tabBarController = UITabBarController()
     
-    let testVC = UINavigationController(rootViewController: TestViewController())
-    testVC.tabBarItem = UITabBarItem(tabBarSystemItem: .mostViewed, tag: 0)
+    let homeVC = UINavigationController(rootViewController: HomeViewController())
+    homeVC.tabBarItem = UITabBarItem(tabBarSystemItem: .mostViewed, tag: 0)
     
-    let resultVC = UINavigationController(rootViewController: TestViewController())
+    let resultVC = UINavigationController(rootViewController: HomeViewController())
     resultVC.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
     
-    tabBarController.viewControllers = [testVC, resultVC]
+    tabBarController.viewControllers = [homeVC, resultVC]
     
     tabBarController.tabBar.tintColor = .systemBlue
     
