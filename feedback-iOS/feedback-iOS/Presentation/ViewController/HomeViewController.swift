@@ -1,5 +1,5 @@
 //
-//  TestViewController.swift
+//  HomeViewController.swift
 //  feedback-iOS
 //
 //  Created by Chandrala on 10/9/24.
@@ -11,7 +11,7 @@ import UIKit
 import SnapKit
 import Then
 
-final class TestViewController: UIViewController {
+final class HomeViewController: UIViewController {
   
   let makeFeedbackButton = UIButton()
   let enterFeedbackButton = UIButton()
@@ -84,7 +84,7 @@ final class TestViewController: UIViewController {
 }
 
 // MARK: - MCBrowserViewControllerDelegate
-extension TestViewController: MCBrowserViewControllerDelegate {
+extension HomeViewController: MCBrowserViewControllerDelegate {
   func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
     browserViewController.dismiss(animated: true) {
       let sessionVC = SessionViewController()
