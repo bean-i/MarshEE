@@ -28,6 +28,11 @@ class SessionViewController: UIViewController {
     updateUI()
   }
   
+  override func viewWillDisappear(_ animated: Bool) {
+    super.viewWillDisappear(animated)
+    SessionManager.shared.stopSession()
+  }
+  
   func setStyle() {
     view.backgroundColor = .white
     

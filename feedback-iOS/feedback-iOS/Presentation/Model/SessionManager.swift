@@ -40,6 +40,18 @@ final class SessionManager: NSObject {
     }
   }
   
+  func stopSession() {
+      session.disconnect()
+
+      if isHost {
+          advertiser?.stopAdvertisingPeer()
+      } else {
+          browser?.dismiss(animated: true, completion: nil)
+      }
+
+      print("세션 종료됨")
+  }
+  
   func allPeersIncludingHost() -> [MCPeerID] {
     return [peerID] + session.connectedPeers
   }
