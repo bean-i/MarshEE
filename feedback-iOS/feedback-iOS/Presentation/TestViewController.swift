@@ -40,6 +40,11 @@ final class TestViewController: UIViewController {
   }
   
   private func setStyle() {
+    
+    title = "FeedBack!"
+    navigationController?.navigationBar.prefersLargeTitles = true
+    navigationItem.largeTitleDisplayMode = .always
+    
     makeFeedbackButton.do {
       $0.setTitle("세션 생성", for: .normal)
       $0.backgroundColor = .gray
