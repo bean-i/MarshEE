@@ -34,11 +34,13 @@ final class HomeViewController: UIViewController {
     makeFeedbackButton.do {
       $0.setTitle("세션 생성", for: .normal)
       $0.backgroundColor = .gray
+      $0.titleLabel?.font = UIFont.sfPro(.title2)
     }
     
     enterFeedbackButton.do {
       $0.setTitle("세션 참여", for: .normal)
       $0.backgroundColor = .gray
+      $0.titleLabel?.font = UIFont.sfPro(.headline)
     }
     
     makeFeedbackButton.addTarget(self, action: #selector(makeFeedbackButtonTapped), for: .touchUpInside)
@@ -52,8 +54,8 @@ final class HomeViewController: UIViewController {
   private func setAutoLayout() {
     makeFeedbackButton.snp.makeConstraints {
       $0.centerX.centerY.equalToSuperview()
-      $0.width.equalTo(100)
-      $0.height.equalTo(50)
+      $0.width.equalTo(200)
+      $0.height.equalTo(100)
     }
     
     enterFeedbackButton.snp.makeConstraints {

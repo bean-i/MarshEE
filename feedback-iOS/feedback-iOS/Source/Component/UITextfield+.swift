@@ -25,7 +25,7 @@ extension UITextField {
     textColor: UIColor,
     backgroundColor: UIColor,
     placeholderColor: UIColor,
-    style: UIFont.Pretendard
+    style: UIFont.SFPro
   ) {
     self.textColor = textColor
     self.backgroundColor = backgroundColor
@@ -33,11 +33,11 @@ extension UITextField {
       string: placeholder,
       attributes: [
         .foregroundColor: placeholderColor,
-        .font: UIFont.pretendard(style),
+        .font: UIFont.sfPro(style),
         .kern: style.tracking
       ]
     )
-    self.attributedText = .pretendardString(style: style)
+    self.attributedText = .sfProString(style: style)
   }
   
   func setAutoType(
