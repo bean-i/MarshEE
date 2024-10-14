@@ -8,9 +8,9 @@
 import UIKit
 
 extension NSAttributedString {
-  static func pretendardString(
+  static func sfProString(
     _ text: String = "",
-    style: UIFont.Pretendard
+    style: UIFont.SFPro
   ) -> NSAttributedString {
     let paragraphStyle = NSMutableParagraphStyle()
     paragraphStyle.maximumLineHeight = style.lineHeight
@@ -18,7 +18,7 @@ extension NSAttributedString {
     
     let attributes: [NSAttributedString.Key: Any] = [
       .paragraphStyle: paragraphStyle,
-      .font: UIFont.pretendard(style),
+      .font: UIFont.sfPro(style),
       .kern: style.tracking,
       .baselineOffset: style.baselineOffset
     ]

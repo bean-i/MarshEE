@@ -10,11 +10,11 @@ import UIKit
 extension UILabel {
   func setText(
     _ text: String = " ",
-    style: UIFont.Pretendard,
+    style: UIFont.SFPro,
     color: UIColor = .black,
     isSingleLine: Bool = false
   ) {
-    attributedText = .pretendardString(text.isEmpty ? " " : text, style: style)
+    attributedText = .sfProString(text.isEmpty ? " " : text, style: style)
     textColor = color
     if isSingleLine {
       numberOfLines = 1
@@ -32,7 +32,7 @@ extension UILabel {
     attributedText = NSAttributedString(string: text ?? " ", attributes: currentAttributes)
   }
   
-  func setHighlightText(_ words: String..., style: UIFont.Pretendard, color: UIColor? = nil) {
+  func setHighlightText(_ words: String..., style: UIFont.SFPro, color: UIColor? = nil) {
     guard let currentAttributedText = attributedText else { return }
     
     let mutableAttributedString = NSMutableAttributedString(attributedString: currentAttributedText)
@@ -43,7 +43,7 @@ extension UILabel {
       
       if range.location != NSNotFound {
         let highlightedAttributes: [NSAttributedString.Key: Any] = [
-          .font: UIFont.pretendard(style),
+          .font: UIFont.sfPro(style),
           .foregroundColor: color ?? textColor
         ]
         mutableAttributedString.addAttributes(highlightedAttributes, range: range)

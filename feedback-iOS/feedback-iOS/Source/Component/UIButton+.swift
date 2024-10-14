@@ -8,8 +8,8 @@
 import UIKit
 
 extension UIButton {
-  func setTitle(_ title: String, style: UIFont.Pretendard, color: UIColor) {
-    setAttributedTitle(.pretendardString(title, style: style), for: .normal)
+  func setTitle(_ title: String, style: UIFont.SFPro, color: UIColor) {
+    setAttributedTitle(.sfProString(title, style: style), for: .normal)
     setTitleColor(color, for: .normal)
   }
   
