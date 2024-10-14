@@ -1,5 +1,5 @@
 //
-//  SessionViewController.swift
+//  LobbyViewController.swift
 //  feedback-iOS
 //
 //  Created by Chandrala on 10/9/24.
@@ -11,7 +11,7 @@ import UIKit
 import Then
 import SnapKit
 
-class SessionViewController: UIViewController {
+class LobbyViewController: UIViewController {
   
   let peersTableView = UITableView()
   let startFeedbackButton = UIButton()
@@ -109,7 +109,7 @@ class SessionViewController: UIViewController {
   }
 }
 
-extension SessionViewController: UITableViewDelegate, UITableViewDataSource {
+extension LobbyViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
     return SessionManager.shared.allPeersIncludingHost().count
   }
