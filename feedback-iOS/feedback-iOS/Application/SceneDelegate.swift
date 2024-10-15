@@ -17,32 +17,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     
     let window = UIWindow(windowScene: windowScene)
     
-    let tabBarController = UITabBarController()
-    
     let homeVC = UINavigationController(rootViewController: HomeViewController())
-    homeVC.tabBarItem = UITabBarItem(tabBarSystemItem: .mostViewed, tag: 0)
-    
-    let resultVC = UINavigationController(rootViewController: HomeViewController())
-    resultVC.tabBarItem = UITabBarItem(tabBarSystemItem: .favorites, tag: 1)
-    
-    tabBarController.viewControllers = [homeVC, resultVC]
-    
-    tabBarController.tabBar.tintColor = .systemBlue
-    
-    let normalAttributes = [
-      NSAttributedString.Key.font: UIFont.systemFont(ofSize: 14),
-      NSAttributedString.Key.foregroundColor: UIColor.gray
-    ]
-    
-    let selectedAttributes = [
-      NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 16),
-      NSAttributedString.Key.foregroundColor: UIColor.gray
-    ]
-    
-    UITabBarItem.appearance().setTitleTextAttributes(normalAttributes, for: .normal)
-    UITabBarItem.appearance().setTitleTextAttributes(selectedAttributes, for: .selected)
-    
-    window.rootViewController = tabBarController
+
+    window.rootViewController = homeVC
     window.makeKeyAndVisible()
     
     self.window = window
