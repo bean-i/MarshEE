@@ -7,6 +7,12 @@
 
 import MultipeerConnectivity
 
+struct UserInfo {
+    let peerID: MCPeerID
+    let name: String
+    let role: String
+}
+
 final class SessionManager: NSObject {
   
   static let shared = SessionManager()
@@ -17,6 +23,8 @@ final class SessionManager: NSObject {
   var browser: MCBrowserViewController?
   
   var isHost: Bool = false
+  var projectName: String?
+  var connectedPeersInfo: [UserInfo] = []
   
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
@@ -27,11 +35,14 @@ final class SessionManager: NSObject {
     super.init()
   }
   
-  func setSession(isHost: Bool, displayName: String, delegate: MCBrowserViewControllerDelegate? = nil) {
+  func setSession(isHost: Bool, projectName: String? = nil, name: String, role: String, delegate: MCBrowserViewControllerDelegate? = nil) {
     self.isHost = isHost
-    peerID = MCPeerID(displayName: displayName)
+    self.projectName = projectName
+    peerID = MCPeerID(displayName: name)
     session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
     session.delegate = self
+    
+    connectedPeersInfo.append(UserInfo(peerID: peerID, name: name , role: role))
     
     if isHost {
       setAdvertiser()
@@ -50,10 +61,6 @@ final class SessionManager: NSObject {
       }
 
       print("세션 종료됨")
-  }
-  
-  func allPeersIncludingHost() -> [MCPeerID] {
-    return [peerID] + session.connectedPeers
   }
   
   private func setAdvertiser() {
@@ -92,8 +99,8 @@ extension SessionManager: MCSessionDelegate {
     @unknown default:
       fatalError("알 수 없는 상태")
     }
-    
-    DispatchQueue.main.async {
+
+    DispatchQueue.main.async {    // 피어 상태가 변경될 때마다 호출됨
       self.onPeersChanged?()
     }
   }
