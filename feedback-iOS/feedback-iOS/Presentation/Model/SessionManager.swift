@@ -1,56 +1,77 @@
-//
-//  SessionManager.swift
-//  feedback-iOS
-//
-//  Created by Chandrala on 10/11/24.
-//
-
 import MultipeerConnectivity
 
-struct UserInfo {
-    let peerID: MCPeerID
-    let name: String
-    let role: String
+struct UserInfo: Codable {
+  let uuid: String
+  let peerID: String
+  let role: String
+  
+  init(uuid: String, peerID: MCPeerID, role: String) {
+    self.uuid = uuid
+    self.peerID = peerID.displayName
+    self.role = role
+  }
 }
 
 final class SessionManager: NSObject {
-  
+
   static let shared = SessionManager()
-  
+
   var peerID: MCPeerID!
   var session: MCSession!
   var advertiser: MCNearbyServiceAdvertiser?
   var browser: MCBrowserViewController?
-  
-  var isHost: Bool = false
+  var localUserInfo: UserInfo?
   var projectName: String?
-  var connectedPeersInfo: [UserInfo] = []
-  
+  var isHost: Bool = false
+
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
   
+  var localUserUUID: String {
+    if let uuid = UserDefaults.standard.string(forKey: "localUserUUID") {
+      return uuid
+    } else {
+      let newUUID = UUID().uuidString
+      UserDefaults.standard.set(newUUID, forKey: "localUserUUID")
+      return newUUID
+    }
+  }
+
   private let serviceType = "feedbacksession"
-  
+
   private override init() {
     super.init()
   }
   
-  func setSession(isHost: Bool, projectName: String? = nil, name: String, role: String, delegate: MCBrowserViewControllerDelegate? = nil) {
+  func setLocalUserInfo(name: String, role: String) {
+    let peerID = MCPeerID(displayName: name)
+    localUserInfo = UserInfo(
+      uuid: localUserUUID,
+      peerID: peerID,
+      role: role
+    )
+  }
+
+  func setSession(
+    isHost: Bool,
+    displayName: String,
+    projectName: String? = nil,
+    delegate: MCBrowserViewControllerDelegate? = nil
+  ) {
     self.isHost = isHost
-    self.projectName = projectName
-    peerID = MCPeerID(displayName: name)
+    self.projectName = projectName ?? "DefaultProject"
+    
+    peerID = MCPeerID(displayName: displayName)
     session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
     session.delegate = self
-    
-    connectedPeersInfo.append(UserInfo(peerID: peerID, name: name , role: role))
-    
+
     if isHost {
       setAdvertiser()
     } else {
       setBrowser(delegate: delegate)
     }
   }
-  
+
   func stopSession() {
       session.disconnect()
 
@@ -62,21 +83,21 @@ final class SessionManager: NSObject {
 
       print("세션 종료됨")
   }
-  
+
   private func setAdvertiser() {
     advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
     advertiser?.delegate = self
     advertiser?.startAdvertisingPeer()
   }
-  
+
   private func setBrowser(delegate: MCBrowserViewControllerDelegate?) {
     browser = MCBrowserViewController(serviceType: serviceType, session: session)
     browser?.delegate = delegate
   }
-  
+
   func sendData(_ data: Data) {
     guard !session.connectedPeers.isEmpty else { return }
-    
+
     do {
       try session.send(data, toPeers: session.connectedPeers, with: .reliable)
       print("데이터 전송 성공")
@@ -100,21 +121,21 @@ extension SessionManager: MCSessionDelegate {
       fatalError("알 수 없는 상태")
     }
 
-    DispatchQueue.main.async {    // 피어 상태가 변경될 때마다 호출됨
+    DispatchQueue.main.async {
       self.onPeersChanged?()
     }
   }
-  
+
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
     DispatchQueue.main.async {
       self.onDataReceived?(data, peerID)
     }
   }
-  
+
   func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
-  
+
   func session(_ session: MCSession, didStartReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, with progress: Progress) {}
-  
+
   func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 }
 
@@ -123,7 +144,7 @@ extension SessionManager: MCBrowserViewControllerDelegate {
   func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
     browserViewController.dismiss(animated: true, completion: nil)
   }
-  
+
   func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
     browserViewController.dismiss(animated: true, completion: nil)
   }

@@ -3,7 +3,6 @@
 //  feedback-iOS
 //
 //  Created by Chandrala on 10/9/24.
-//
 
 import UIKit
 
@@ -46,8 +45,6 @@ final class HomeViewController: UIViewController {
   let buttonStackView = UIStackView()
   
   let buttonFooter = UILabel()
-  
-  
   
   public override func viewDidLoad() {
     super.viewDidLoad()
@@ -319,15 +316,26 @@ final class HomeViewController: UIViewController {
     }
     
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+    
     let createAction = UIAlertAction(title: "Create", style: .default) { [weak self] _ in
       guard let self = self else { return }
       
       let userName = self.userNameTextField.text ?? ""
       let userRole = self.descriptionTextField.text ?? ""
       let projectName = alertController.textFields?.first?.text ?? ""
+      SessionManager.shared.setLocalUserInfo(
+        name: userName,
+        role: userRole
+      )
       
       if !projectName.isEmpty {
-        SessionManager.shared.setSession(isHost: true, projectName: projectName, name: userName, role: userRole)
+        SessionManager.shared.setSession(
+          isHost: true,
+          displayName: userName,
+          projectName: projectName,
+          delegate: self
+        )
+        
         let sessionVC = LobbyViewController()
         self.navigationController?.pushViewController(sessionVC, animated: true)
       } else {
@@ -343,8 +351,16 @@ final class HomeViewController: UIViewController {
   @objc private func joinButtonTapped() {
     let userName = self.userNameTextField.text ?? ""
     let userRole = self.descriptionTextField.text ?? ""
-    
-    SessionManager.shared.setSession(isHost: false, name: userName, role: userRole, delegate: self)
+    print("joinButtonTapped")
+    SessionManager.shared.setLocalUserInfo(
+      name: userName,
+      role: userRole
+    )
+    SessionManager.shared.setSession(
+      isHost: false,
+      displayName: userName,
+      delegate: self
+    )
         
         if let browser = SessionManager.shared.browser {
           present(browser, animated: true)
@@ -395,4 +411,3 @@ extension HomeViewController: MCBrowserViewControllerDelegate {
     browserViewController.dismiss(animated: true, completion: nil)
   }
 }
-
