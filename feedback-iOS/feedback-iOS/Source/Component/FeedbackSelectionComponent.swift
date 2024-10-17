@@ -32,7 +32,7 @@ final class FeedbackSelectionComponent: UIView {
   private var name: String
   private var traits: [Trait]
   
-  weak var parentViewController: TestViewController?
+  weak var parentViewController: FeedbackViewController?
   
   init(name: String, traits: [Trait]) {
     self.name = name
@@ -151,7 +151,7 @@ extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionView
     // 푸터 라벨 업데이트
     updateFooterLabel()
     
-    parentViewController?.updateDoneButtonState()
+//    parentViewController?.updateDoneButtonState()
   }
   
   
