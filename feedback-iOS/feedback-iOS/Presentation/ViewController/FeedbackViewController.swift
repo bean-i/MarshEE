@@ -12,5 +12,6 @@ final class FeedbackViewController: UIViewController {
   override func viewDidLoad() {
     view.backgroundColor = .systemBlue
     super.viewDidLoad()
+    print(SessionManager.shared.receivedUserInfos)
   }
 }

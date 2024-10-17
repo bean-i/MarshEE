@@ -19,9 +19,11 @@ extension UIView {
     }
   }
   
-  func roundCorners(cornerRadius: CGFloat, maskedCorners: CACornerMask) {
+  func roundCorners(cornerRadius: CGFloat, maskedCorners: CACornerMask? = nil) {
     clipsToBounds = true
     layer.cornerRadius = cornerRadius
-    layer.maskedCorners = CACornerMask(arrayLiteral: maskedCorners)
+    if let maskedCorners = maskedCorners {
+        layer.maskedCorners = maskedCorners
+    }
   }
 }

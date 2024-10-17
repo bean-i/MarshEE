@@ -3,12 +3,12 @@
 //  feedback-iOS
 //
 //  Created by Chandrala on 10/9/24.
-//
 
 import UIKit
 
 import SnapKit
 import Then
+import MultipeerConnectivity
 
 final class HomeViewController: UIViewController {
   
@@ -45,8 +45,6 @@ final class HomeViewController: UIViewController {
   let buttonStackView = UIStackView()
   
   let buttonFooter = UILabel()
-  
-  
   
   public override func viewDidLoad() {
     super.viewDidLoad()
@@ -162,7 +160,8 @@ final class HomeViewController: UIViewController {
       $0.setImage(UIImage(systemName: "person.badge.plus"), for: .normal)
       $0.tintColor = .systemBlue
       $0.backgroundColor = UIColor(red: 120.0 / 255.0, green: 120.0 / 255.0, blue: 128.0 / 255.0, alpha: 0.12)
-      $0.setLayer(borderColor: .clear, cornerRadius: 12) //radius
+      $0.setLayer(borderColor: .clear, cornerRadius: 12)
+      $0.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
     }
     
     buttonStackView.do {
@@ -182,11 +181,11 @@ final class HomeViewController: UIViewController {
   }
   
   private func setUI() {
-  
+    
     [createButton, joinButton].forEach {
       buttonStackView.addArrangedSubview($0)
     }
-
+    
     contentView.addSubviews(
       mainImage,
       mainLabel,
@@ -205,10 +204,10 @@ final class HomeViewController: UIViewController {
     )
     
     scrollView.addSubview(contentView)
-
+    
     view.addGestureRecognizer(tapGesture)
     view.addSubviews(scrollView)
-
+    
   }
   
   private func setAutoLayout() {
@@ -311,20 +310,62 @@ final class HomeViewController: UIViewController {
       message: "Please enter your project name.",
       preferredStyle: .alert
     )
-
+    
     alertController.addTextField {
       $0.placeholder = "Your Project Name"
     }
     
     let cancelAction = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-    let createAction = UIAlertAction(title: "Create", style: .default) // 다음 화면 연결
     
+    let createAction = UIAlertAction(title: "Create", style: .default) { [weak self] _ in
+      guard let self = self else { return }
+      
+      let userName = self.userNameTextField.text ?? ""
+      let userRole = self.descriptionTextField.text ?? ""
+      let projectName = alertController.textFields?.first?.text ?? ""
+      SessionManager.shared.setLocalUserInfo(
+        name: userName,
+        role: userRole
+      )
+      
+      if !projectName.isEmpty {
+        SessionManager.shared.setSession(
+          isHost: true,
+          displayName: userName,
+          projectName: projectName,
+          delegate: self
+        )
+        
+        let sessionVC = LobbyViewController()
+        self.navigationController?.pushViewController(sessionVC, animated: true)
+      } else {
+        print("프로젝트 이름을 입력해주세요")
+      }
+    }
     alertController.addAction(cancelAction)
     alertController.addAction(createAction)
     
     present(alertController, animated: true, completion: nil)
   }
-
+  
+  @objc private func joinButtonTapped() {
+    let userName = self.userNameTextField.text ?? ""
+    let userRole = self.descriptionTextField.text ?? ""
+    print("joinButtonTapped")
+    SessionManager.shared.setLocalUserInfo(
+      name: userName,
+      role: userRole
+    )
+    SessionManager.shared.setSession(
+      isHost: false,
+      displayName: userName,
+      delegate: self
+    )
+        
+        if let browser = SessionManager.shared.browser {
+          present(browser, animated: true)
+        }
+      }
   
   private func setupNotifications() {
     NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -349,10 +390,24 @@ final class HomeViewController: UIViewController {
   }
   
   @objc func dismissKeyboard() {
-      view.endEditing(true)
+    view.endEditing(true)
   }
   
   deinit {
     NotificationCenter.default.removeObserver(self)
+  }
+}
+
+// MARK: - MCBrowserViewControllerDelegate
+extension HomeViewController: MCBrowserViewControllerDelegate {
+  func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
+    browserViewController.dismiss(animated: true) {
+      let lobbyVC = LobbyViewController()
+      self.navigationController?.pushViewController(lobbyVC, animated: true)
+    }
+  }
+  
+  func browserViewControllerWasCancelled(_ browserViewController: MCBrowserViewController) {
+    browserViewController.dismiss(animated: true, completion: nil)
   }
 }
