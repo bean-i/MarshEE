@@ -30,14 +30,8 @@ class LobbyViewController: UIViewController {
     updateUI()
   }
   
-  override func viewWillDisappear(_ animated: Bool) {
-    super.viewWillDisappear(animated)
-    SessionManager.shared.stopSession()
-  }
-  
   func setStyle() {
     view.backgroundColor = .white
-    
     title = "세션 참가자"
     
     startFeedbackButton.do {
@@ -97,73 +91,27 @@ class LobbyViewController: UIViewController {
   func setSession() {
     SessionManager.shared.onPeersChanged = { [weak self] in
       self?.peersTableView.reloadData()
-      
-      if !SessionManager.shared.isHost {
-        do {
-          if let localUserInfo = SessionManager.shared.localUserInfo {
-            let localUserInfoData = try JSONEncoder().encode(localUserInfo)
-            let jsonString = String(data: localUserInfoData, encoding: .utf8)
-            print("LocalUserInfo JSON: \(jsonString ?? "nil")")
-            
-            if let hostPeer = SessionManager.shared.session.connectedPeers.first {
-              SessionManager.shared.sendData(
-                localUserInfoData,
-                message: "localUserInfo",
-                to: [hostPeer]
-              )
-              print("LocalUserInfo 전송 완료")
-            }
-          } else {
-            print("LocalUserInfo가 nil입니다.")
-          }
-        } catch {
-          print("LocalUserInfo 인코딩 실패: \(error.localizedDescription)")
-        }
-      }
     }
     
     SessionManager.shared.onDataReceived = { [weak self] (data, departureID) in
-      print("데이터 수신 시도 from: \(departureID.displayName)")
       if let receivedMessageData = try? JSONDecoder().decode(MessageData.self, from: data) {
         print("수신한 메시지: \(receivedMessageData.message)")
         
         switch receivedMessageData.message {
-          //        case "hostPeerID":
-          //          if let hostPeerIDString = try? JSONDecoder().decode(String.self, from: receivedMessageData.data) {
-          //            print("Peer가 받은 Host의 PeerID: \(hostPeerIDString)")
-          //
-          //            if let hostPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == hostPeerIDString }) {
-          //              print("Host PeerID: \(hostPeerID)")
-          //
-          //              if let localUserInfoData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo) {
-          //                SessionManager.shared.sendData(
-          //                  localUserInfoData,
-          //                  message: "localUserInfo",
-          //                  to: [hostPeerID]
-          //                )
-          //                print("LocalUserInfo 전송 성공")
-          //              }
-          //            }
-          //          }
-          
-        case "localUserInfo":
-          if let receivedUserInfo = try? JSONDecoder().decode(
-            UserInfo.self,
-            from: receivedMessageData.data
-          ) {
-            SessionManager.shared.receivedUserInfos.append(receivedUserInfo)
-            print("Received user info: \(receivedUserInfo.peerID)")
-          }
-          
         case "start feedback":
+          print(SessionManager.shared.receivedUserInfos)
           let feedbackVC = FeedbackViewController()
           self?.navigationController?.pushViewController(feedbackVC, animated: true)
           
         default:
           print("알 수 없는 메시지: \(receivedMessageData.message)")
         }
-        print("\(receivedMessageData.message) 데이터 수신 성공")
       }
+    }
+    
+    SessionManager.shared.onPushDataReceived = { [weak self] in
+        let feedbackVC = FeedbackViewController()
+        self?.navigationController?.pushViewController(feedbackVC, animated: true)
     }
   }
   
@@ -185,6 +133,9 @@ class LobbyViewController: UIViewController {
     } catch {
       print("피어 정보 전송 실패: \(error.localizedDescription)")
     }
+    
+    let feedbackVC = FeedbackViewController()
+    self.navigationController?.pushViewController(feedbackVC, animated: true)
   }
 }
 

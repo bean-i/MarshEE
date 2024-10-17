@@ -32,6 +32,7 @@ final class SessionManager: NSObject {
   
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
+  var onPushDataReceived: (() -> Void)?
   
   var localUserUUID: String {
     if let uuid = UserDefaults.standard.string(forKey: "localUserUUID") {
@@ -110,7 +111,6 @@ final class SessionManager: NSObject {
       let encodedMessageData = try JSONEncoder().encode(messageData)
       
       try session.send(encodedMessageData, toPeers: to, with: .reliable)
-      print("\(message) 데이터 전송 성공")
     } catch {
       print("데이터 전송 실패: \(error.localizedDescription)")
     }
@@ -123,29 +123,16 @@ extension SessionManager: MCSessionDelegate {
     switch state {
     case .connected:
       print("연결됨: \(peerID.displayName)")
-      // 피어가 연결된 후 LocalUserInfo 전송
-      if !self.isHost, let localUserInfo = self.localUserInfo {
-        do {
-          let localUserInfoData = try JSONEncoder().encode(localUserInfo)
-          let jsonString = String(data: localUserInfoData, encoding: .utf8)
-          print("LocalUserInfo JSON: \(jsonString ?? "nil")")
-          
-          // Host에게 LocalUserInfo 전송
-          if let hostPeer = session.connectedPeers.first {
-            self.sendData(
-              localUserInfoData,
-              message: "localUserInfo",
-              to: [hostPeer]
-            )
-            print("LocalUserInfo 전송 완료")
-          }
-        } catch {
-          print("LocalUserInfo 인코딩 실패: \(error.localizedDescription)")
-        }
-      }
       
-      DispatchQueue.main.async {
-        self.onPeersChanged?()
+      if SessionManager.shared.isHost {
+        if let peerIDData = try? JSONEncoder().encode(SessionManager.shared.peerID.displayName) {
+          SessionManager.shared.sendData(
+            peerIDData,
+            message: "hostPeerID",
+            to: SessionManager.shared.session.connectedPeers
+          )
+          print("1. Host가 peer에게 hostID 전송")
+        }
       }
     case .connecting:
       print("연결 중: \(peerID.displayName)")
@@ -154,13 +141,58 @@ extension SessionManager: MCSessionDelegate {
     @unknown default:
       fatalError("알 수 없는 상태")
     }
+    
+    DispatchQueue.main.async {
+      self.onPeersChanged?()
+    }
   }
   
   func session(_ session: MCSession, didReceive data: Data, fromPeer departureID: MCPeerID) {
     DispatchQueue.main.async {
       self.onDataReceived?(data, departureID)
     }
+    
+    if let receivedMessageData = try? JSONDecoder().decode(MessageData.self, from: data) {
+      print("수신한 메시지: \(receivedMessageData.message)")
+      
+      switch receivedMessageData.message {
+      case "hostPeerID":
+        if let hostPeerIDString = try? JSONDecoder().decode(String.self, from: receivedMessageData.data) {
+          
+          if let hostPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == hostPeerIDString }) {
+            
+            if let localUserInfoData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo) {
+              SessionManager.shared.sendData(
+                localUserInfoData,
+                message: "localUserInfo",
+                to: [hostPeerID]
+              )
+              print("2. Peer가 Host에게 LocalUserInfo를 전송")
+            }
+          }
+        }
+        
+      case "localUserInfo":
+        if let receivedUserInfo = try? JSONDecoder().decode(UserInfo.self, from: receivedMessageData.data) {
+          SessionManager.shared.receivedUserInfos.append(receivedUserInfo)
+          print("Host가 Peer의 LocalUserInfo를 수신")
+        }
+        
+      case "start feedback":
+        if let allUserInfoData = try? JSONDecoder().decode([UserInfo].self, from: receivedMessageData.data) {
+          self.receivedUserInfos = allUserInfoData
+          DispatchQueue.main.async {
+            self.onPushDataReceived?()
+          }
+        }
+            
+      default:
+        print("알 수 없는 메시지: \(receivedMessageData.message)")
+      }
+    }
   }
+  
+
   
   func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {
   }
@@ -169,7 +201,6 @@ extension SessionManager: MCSessionDelegate {
   
   func session(_ session: MCSession, didFinishReceivingResourceWithName resourceName: String, fromPeer peerID: MCPeerID, at localURL: URL?, withError error: Error?) {}
 }
-
 // MARK: - MCBrowserViewControllerDelegate
 extension SessionManager: MCBrowserViewControllerDelegate {
   func browserViewControllerDidFinish(_ browserViewController: MCBrowserViewController) {
