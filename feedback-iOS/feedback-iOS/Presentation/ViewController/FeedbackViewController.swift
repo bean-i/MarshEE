@@ -23,6 +23,7 @@ final class FeedbackViewController: UIViewController {
   }
   
   func setStyle() {
+    
   }
   
   func setUI() {
@@ -58,9 +59,10 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
     let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
     
     let detailVC = FeedbackDetailViewController()
+    let modalDetailVC = UINavigationController(rootViewController: detailVC)
+    modalDetailVC.modalPresentationStyle = .pageSheet
     detailVC.selectedUserInfo = selectedUserInfo
     
-    detailVC.modalPresentationStyle = .fullScreen
-    present(detailVC, animated: true, completion: nil)
+    present(modalDetailVC, animated: true, completion: nil)
   }
 }
