@@ -29,7 +29,7 @@ final class SessionManager: NSObject {
   var projectName: String?
   var isHost: Bool = false
   var receivedUserInfos: [UserInfo] = []
-  var receivedFeedbackDatas: [String] = []
+  var receivedFeedbackDatas: [[Feedback]] = []
   
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
@@ -191,9 +191,9 @@ extension SessionManager: MCSessionDelegate {
         }
         
       case "sendFeedback":
-        if let receivedFeedbackData = try? JSONDecoder().decode(String.self, from: receivedMessageData.data) {
+        if let receivedFeedbackData = try? JSONDecoder().decode([Feedback].self, from: receivedMessageData.data) {
           self.receivedFeedbackDatas.append(receivedFeedbackData)
-          print("\(receivedFeedbackData)를 받았음")
+          print("\(receivedFeedbackData)를 수신")
         }
         
       default:
@@ -229,3 +229,4 @@ extension SessionManager: MCNearbyServiceAdvertiserDelegate {
     invitationHandler(true, session) // 자동 수락 예시
   }
 }
+
