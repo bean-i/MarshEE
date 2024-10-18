@@ -23,7 +23,7 @@ final class FeedbackViewController: UIViewController {
   }
   
   func setStyle() {
-    
+    title = "Feedback"
   }
   
   func setUI() {
@@ -52,6 +52,13 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
     let userInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
     cell.textLabel?.text = userInfo.peerID
+    
+    if userInfo.peerID == SessionManager.shared.peerID.displayName {
+      cell.accessoryType = .checkmark
+    } else {
+      cell.accessoryType = .none
+    }
+    
     return cell
   }
   
