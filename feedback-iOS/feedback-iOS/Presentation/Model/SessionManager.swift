@@ -29,6 +29,7 @@ final class SessionManager: NSObject {
   var projectName: String?
   var isHost: Bool = false
   var receivedUserInfos: [UserInfo] = []
+  var receivedFeedbackDatas: [[Feedback]] = []
   
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
@@ -74,6 +75,9 @@ final class SessionManager: NSObject {
     
     if isHost {
       setAdvertiser()
+      if let localUserInfo = localUserInfo {
+        receivedUserInfos.append(localUserInfo)
+      }
     } else {
       setBrowser(delegate: delegate)
     }
@@ -175,17 +179,23 @@ extension SessionManager: MCSessionDelegate {
       case "localUserInfo":
         if let receivedUserInfo = try? JSONDecoder().decode(UserInfo.self, from: receivedMessageData.data) {
           SessionManager.shared.receivedUserInfos.append(receivedUserInfo)
-          print("Host가 Peer의 LocalUserInfo를 수신")
+          print("3. Host가 Peer의 LocalUserInfo를 수신")
         }
         
-      case "start feedback":
+      case "startFeedback":
         if let allUserInfoData = try? JSONDecoder().decode([UserInfo].self, from: receivedMessageData.data) {
           self.receivedUserInfos = allUserInfoData
           DispatchQueue.main.async {
             self.onPushDataReceived?()
           }
         }
-            
+        
+      case "sendFeedback":
+        if let receivedFeedbackData = try? JSONDecoder().decode([Feedback].self, from: receivedMessageData.data) {
+          self.receivedFeedbackDatas.append(receivedFeedbackData)
+          print("\(receivedFeedbackData)를 수신")
+        }
+        
       default:
         print("알 수 없는 메시지: \(receivedMessageData.message)")
       }
@@ -219,3 +229,4 @@ extension SessionManager: MCNearbyServiceAdvertiserDelegate {
     invitationHandler(true, session) // 자동 수락 예시
   }
 }
+

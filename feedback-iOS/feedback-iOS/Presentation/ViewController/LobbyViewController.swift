@@ -93,22 +93,6 @@ class LobbyViewController: UIViewController {
       self?.peersTableView.reloadData()
     }
     
-    SessionManager.shared.onDataReceived = { [weak self] (data, departureID) in
-      if let receivedMessageData = try? JSONDecoder().decode(MessageData.self, from: data) {
-        print("수신한 메시지: \(receivedMessageData.message)")
-        
-        switch receivedMessageData.message {
-        case "start feedback":
-          print(SessionManager.shared.receivedUserInfos)
-          let feedbackVC = FeedbackViewController()
-          self?.navigationController?.pushViewController(feedbackVC, animated: true)
-          
-        default:
-          print("알 수 없는 메시지: \(receivedMessageData.message)")
-        }
-      }
-    }
-    
     SessionManager.shared.onPushDataReceived = { [weak self] in
         let feedbackVC = FeedbackViewController()
         self?.navigationController?.pushViewController(feedbackVC, animated: true)
@@ -126,12 +110,11 @@ class LobbyViewController: UIViewController {
   }
   
   @objc func startFeedbackButtonTapped() {
-    print(SessionManager.shared.receivedUserInfos)
     do {
       let allUserInfoData = try JSONEncoder().encode(SessionManager.shared.receivedUserInfos)
-      SessionManager.shared.sendData(allUserInfoData, message: "start feedback", to: SessionManager.shared.session.connectedPeers)
+      SessionManager.shared.sendData(allUserInfoData, message: "startFeedback", to: SessionManager.shared.session.connectedPeers)
     } catch {
-      print("피어 정보 전송 실패: \(error.localizedDescription)")
+      print("\(error.localizedDescription)")
     }
     
     let feedbackVC = FeedbackViewController()

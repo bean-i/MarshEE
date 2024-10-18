@@ -32,7 +32,7 @@ final class FeedbackSelectionComponent: UIView {
   private var name: String
   private var traits: [Trait]
   
-  weak var parentViewController: TestViewController?
+  weak var parentViewController: FeedbackDetailViewController?
   
   init(name: String, traits: [Trait]) {
     self.name = name
