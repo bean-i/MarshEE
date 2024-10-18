@@ -50,12 +50,12 @@ class FeedbackDetailViewController: UIViewController {
     }
     
     userName.do {
-      $0.text = "Alex"
+      $0.text = selectedUserInfo?.peerID
       $0.font = UIFont.sfPro(.title2)
     }
     
     userRole.do {
-      $0.text = "UX Design"
+      $0.text = selectedUserInfo?.role
       $0.font = UIFont.sfPro(.body)
     }
     
