@@ -12,6 +12,7 @@ import Then
 final class FeedbackViewController: UIViewController {
   
   let feedbackTableView = UITableView()
+  let finishFeedbackButton = UIButton()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -24,15 +25,32 @@ final class FeedbackViewController: UIViewController {
   
   func setStyle() {
     title = "Feedback"
+    
+    finishFeedbackButton.do {
+      $0.setTitle("finish", for: .normal)
+      $0.backgroundColor = .systemBlue
+      $0.setLayer(borderColor: .clear, cornerRadius: 20)
+      $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
+    }
   }
   
   func setUI() {
-    view.addSubview(feedbackTableView)
+    view.addSubviews(
+      feedbackTableView,
+      finishFeedbackButton
+    )
   }
   
   func setAutolayout() {
     feedbackTableView.snp.makeConstraints {
       $0.edges.equalToSuperview()
+    }
+    
+    finishFeedbackButton.snp.makeConstraints {
+      $0.centerX.equalToSuperview()
+      $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-50)
+      $0.width.equalTo(250)
+      $0.height.equalTo(50)
     }
   }
   
@@ -40,6 +58,18 @@ final class FeedbackViewController: UIViewController {
     feedbackTableView.delegate = self
     feedbackTableView.dataSource = self
     feedbackTableView.register(UITableViewCell.self, forCellReuseIdentifier: FeedbackTableViewCell.identifier)
+  }
+  
+  @objc func finishFeedbackButtonTapped() {
+//    do {
+//      let allUserInfoData = try JSONEncoder().encode(SessionManager.shared.receivedUserInfos)
+//      SessionManager.shared.sendData(allUserInfoData, message: "startFeedback", to: SessionManager.shared.session.connectedPeers)
+//    } catch {
+//      print("\(error.localizedDescription)")
+//    }
+//    
+    let resultVC = ResultViewController()
+    self.navigationController?.pushViewController(resultVC, animated: true)
   }
 }
 

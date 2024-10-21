@@ -210,7 +210,7 @@ extension SessionManager: MCSessionDelegate {
               print("   트레잇: \(trait.name), 선택 횟수: \(trait.count)")
             }
           }
-//          print(resultData)
+          print(resultData)
         }
         
       default:
