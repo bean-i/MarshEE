@@ -68,13 +68,11 @@ class FeedbackDetailViewController: UIViewController {
     scrollView.addSubviews(contentView)
     view.addSubview(scrollView)
     
-    // 카테고리별로 FeedbackSelectionComponent를 생성하고 contentView에 추가
     for (index, category) in skill.categories.enumerated() {
       let feedbackComponent = FeedbackSelectionComponent(name: category.name, traits: category.traits)
       feedbackComponent.parentViewController = self
       contentView.addSubview(feedbackComponent)
       
-      // AutoLayout 설정 (컴포넌트 간격은 22)
       feedbackComponent.snp.makeConstraints {
         $0.leading.trailing.equalToSuperview().inset(20)
         if index == 0 {
@@ -87,7 +85,7 @@ class FeedbackDetailViewController: UIViewController {
       lastComponent = feedbackComponent
     }
     lastComponent?.snp.makeConstraints {
-      $0.bottom.equalToSuperview().offset(-20) // 마지막 컴포넌트는 contentView의 하단에 맞춤
+      $0.bottom.equalToSuperview().offset(-20)
     }
   }
   

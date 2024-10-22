@@ -11,6 +11,7 @@ import Then
 
 final class FeedbackViewController: UIViewController {
   
+  let feedbackTableViewHeader = UILabel()
   let feedbackTableView = UITableView()
   let finishFeedbackButton = UIButton()
   
@@ -21,35 +22,56 @@ final class FeedbackViewController: UIViewController {
     setUI()
     setAutolayout()
     setTableView()
+    updateTableViewHeight()
   }
   
   func setStyle() {
     title = "Feedback"
+    navigationItem.hidesBackButton = true
+    view.backgroundColor = .systemGray6
+    
+    feedbackTableViewHeader.do {
+      $0.text = "CHOOSE YOUR TEAMMATE"
+      $0.font = UIFont.sfPro(.header)
+      $0.textColor = .gray
+    }
     
     finishFeedbackButton.do {
-      $0.setTitle("finish", for: .normal)
+      $0.setTitle("Report", for: .normal)
       $0.backgroundColor = .systemBlue
-      $0.setLayer(borderColor: .clear, cornerRadius: 20)
+      $0.setImage(UIImage(systemName: "append.page"), for: .normal)
+      $0.tintColor = .white
+      $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
     }
   }
   
   func setUI() {
     view.addSubviews(
+      feedbackTableViewHeader,
       feedbackTableView,
       finishFeedbackButton
     )
   }
   
   func setAutolayout() {
+    
+    feedbackTableViewHeader.snp.makeConstraints {
+      $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+      $0.leading.equalToSuperview().offset(32)
+    }
+    
     feedbackTableView.snp.makeConstraints {
-      $0.edges.equalToSuperview()
+      $0.top.equalTo(feedbackTableViewHeader.snp.bottom).offset(10)
+      $0.leading.equalToSuperview().offset(16)
+      $0.leading.equalToSuperview().offset(-16)
+      $0.height.equalTo(100)
     }
     
     finishFeedbackButton.snp.makeConstraints {
-      $0.centerX.equalToSuperview()
-      $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-50)
-      $0.width.equalTo(250)
+      $0.top.equalTo(feedbackTableView.snp.bottom).offset(32)
+      $0.leading.equalToSuperview().offset(16)
+      $0.trailing.equalToSuperview().offset(-16)
       $0.height.equalTo(50)
     }
   }
@@ -59,6 +81,17 @@ final class FeedbackViewController: UIViewController {
     feedbackTableView.dataSource = self
     feedbackTableView.register(UITableViewCell.self, forCellReuseIdentifier: FeedbackTableViewCell.identifier)
   }
+  
+  func updateTableViewHeight() {
+      let rowHeight = feedbackTableView.rowHeight
+      let numberOfRows = feedbackTableView.numberOfRows(inSection: 0)
+      let totalHeight = rowHeight * CGFloat(numberOfRows)
+      
+      feedbackTableView.snp.updateConstraints {
+          $0.height.equalTo(totalHeight)
+      }
+  }
+  
   
   @objc func finishFeedbackButtonTapped() {
 //    do {

@@ -14,11 +14,9 @@ final class ResultViewController: UIViewController {
   let containerView = UIView()
   let graphTitleLabel = UILabel()
   let mostReceivedSkillLabel = UILabel()
-  lazy var hitmapView = HeatmapView(
-    frame: .zero,
-    skillSet: SessionManager.shared.resultData,
-    totalParticipants: SessionManager.shared.receivedUserInfos.count
-  )
+  var hitmapView = HeatmapView(frame: .zero, skillSet: SessionManager.shared.resultData)
+  let containerViewFooter = UILabel()
+  let doneButton = UIButton()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -28,7 +26,7 @@ final class ResultViewController: UIViewController {
     setAutoLayout()
     
     if let mostSelected = findMostSelectedTraitAndCategory(in: SessionManager.shared.resultData) {
-      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category)"
+      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 􁾪"
     } else {
       mostReceivedSkillLabel.text = "데이터가 없습니다."
     }
@@ -36,6 +34,8 @@ final class ResultViewController: UIViewController {
   
   func setStyle() {
     view.backgroundColor = .systemGray6
+    navigationItem.hidesBackButton = true
+    title = "Results"
     
     containerView.do {
       $0.backgroundColor = .white
@@ -54,10 +54,29 @@ final class ResultViewController: UIViewController {
       $0.font = UIFont.sfPro(.title2)
       $0.textAlignment = .left
     }
+    
+    containerViewFooter.do {
+      $0.text = "타일을 터치하여 키워드를 검색"
+      $0.font = .sfPro(.footer)
+      $0.textColor = .gray
+      $0.textAlignment = .left
+    }
+    
+    doneButton.do {
+      $0.setTitle("Done", for: .normal)
+      $0.setImage(UIImage(systemName: "rectangle.and.pencil.and.ellipsis"), for: .normal)
+      $0.tintColor = .white
+      $0.backgroundColor = .systemBlue
+      $0.setLayer(borderColor: .clear, cornerRadius: 12)
+    }
   }
   
   func setUI() {
-    view.addSubviews(containerView)
+    view.addSubviews(
+      containerView,
+      containerViewFooter,
+      doneButton
+    )
     
     containerView.addSubviews(
       graphTitleLabel,
@@ -81,6 +100,7 @@ final class ResultViewController: UIViewController {
     mostReceivedSkillLabel.snp.makeConstraints {
       $0.top.equalTo(graphTitleLabel.snp.bottom).offset(16)
       $0.leading.equalToSuperview().offset(16)
+      $0.height.equalTo(25)
     }
     
     hitmapView.snp.makeConstraints {
@@ -88,6 +108,18 @@ final class ResultViewController: UIViewController {
       $0.leading.trailing.equalToSuperview().inset(16)
       $0.height.equalTo(hitmapView.snp.width)
       $0.bottom.equalToSuperview().offset(-16)
+    }
+    
+    containerViewFooter.snp.makeConstraints {
+      $0.top.equalTo(containerView.snp.bottom).offset(10)
+      $0.leading.equalToSuperview().offset(32)
+    }
+    
+    doneButton.snp.makeConstraints {
+      $0.leading.equalToSuperview().offset(16)
+      $0.trailing.equalToSuperview().offset(-16)
+      $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-16)
+      $0.height.equalTo(50)
     }
   }
   
