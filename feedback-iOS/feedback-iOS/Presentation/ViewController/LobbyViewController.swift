@@ -109,8 +109,8 @@ class LobbyViewController: UIViewController {
     }
     
     SessionManager.shared.onPushDataReceived = { [weak self] in
-        let feedbackVC = FeedbackViewController()
-        self?.navigationController?.pushViewController(feedbackVC, animated: true)
+      let feedbackVC = FeedbackViewController()
+      self?.navigationController?.pushViewController(feedbackVC, animated: true)
     }
   }
   
@@ -125,8 +125,10 @@ class LobbyViewController: UIViewController {
   }
   
   @objc func startFeedbackButtonTapped() {
+    let uniqueUserInfos = NSOrderedSet(array: SessionManager.shared.receivedUserInfos).array as! [UserInfo]
+    SessionManager.shared.receivedUserInfos = uniqueUserInfos
     do {
-      let allUserInfoData = try JSONEncoder().encode(SessionManager.shared.receivedUserInfos)
+      let allUserInfoData = try JSONEncoder().encode(uniqueUserInfos)
       SessionManager.shared.sendData(
         allUserInfoData,
         message: "startFeedback",

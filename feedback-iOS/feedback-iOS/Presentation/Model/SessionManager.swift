@@ -5,7 +5,7 @@ struct MessageData: Codable {
   let data: Data
 }
 
-struct UserInfo: Codable {
+struct UserInfo: Codable, Equatable, Hashable {
   let uuid: String
   let peerID: String
   let role: String
@@ -14,6 +14,15 @@ struct UserInfo: Codable {
     self.uuid = uuid
     self.peerID = peerID.displayName
     self.role = role
+  }
+  
+  static func == (lhs: UserInfo, rhs: UserInfo) -> Bool {
+    return lhs.uuid == rhs.uuid && lhs.peerID == rhs.peerID
+  }
+
+  func hash(into hasher: inout Hasher) {
+    hasher.combine(uuid)
+    hasher.combine(peerID)
   }
 }
 
@@ -131,7 +140,7 @@ final class SessionManager: NSObject {
         }
         let resultVC = ResultViewController()
         if let navigationController = UIApplication.shared.windows.first?.rootViewController as? UINavigationController {
-            navigationController.pushViewController(resultVC, animated: true)
+          navigationController.pushViewController(resultVC, animated: true)
         }
       }
     }
@@ -143,8 +152,6 @@ extension SessionManager: MCSessionDelegate {
   func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
     switch state {
     case .connected:
-      print("연결됨: \(peerID.displayName)")
-      
       if SessionManager.shared.isHost {
         if let peerIDData = try? JSONEncoder().encode(SessionManager.shared.peerID.displayName) {
           SessionManager.shared.sendData(
@@ -224,6 +231,7 @@ extension SessionManager: MCSessionDelegate {
         
       case "feedbackCompleted":
         feedbackCompletionCount += 1
+        print("피드백 완료 인원 추가")
         if isHost {
           checkAllFeedbackCompleted()
         }
