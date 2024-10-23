@@ -18,13 +18,12 @@ class FeedbackDetailViewController: UIViewController {
   
   let scrollView = UIScrollView()
   let contentView = UIView()
-  
   let userName = UILabel()
   let userRole = UILabel()
-  
   var lastComponent: UIView? = nil
-  
   let doneButton = UIBarButtonItem()
+  
+  var onFeedbackCompleted: ((String) -> Void)?
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -140,6 +139,8 @@ class FeedbackDetailViewController: UIViewController {
           let selectedFeedbacksData = try JSONEncoder().encode(skill)
           
           SessionManager.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
+          
+          onFeedbackCompleted?(selectedUserInfo.peerID)
         } else {
           print("해당 피어를 찾을 수 없습니다.")
         }

@@ -14,11 +14,12 @@ final class FeedbackViewController: UIViewController {
   let feedbackTableViewHeader = UILabel()
   let feedbackTableView = UITableView()
   let finishFeedbackButton = UIButton()
-  let meLabel = UILabel()
+  
+  var completedUserPeerIDs: [String] = []
   
   override func viewDidLoad() {
     super.viewDidLoad()
-  
+    
     setStyle()
     setUI()
     setAutolayout()
@@ -49,12 +50,6 @@ final class FeedbackViewController: UIViewController {
       $0.tintColor = .white
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
-    }
-    
-    meLabel.do {
-      $0.text = "Me"
-      $0.textColor = .gray
-      $0.font = .sfPro(.body)
     }
   }
   
@@ -105,23 +100,31 @@ final class FeedbackViewController: UIViewController {
   
   
   @objc func finishFeedbackButtonTapped() {
+    let totalParticipants = SessionManager.shared.session.connectedPeers.count + 1
+    if completedUserPeerIDs.count == totalParticipants - 1 {
       if SessionManager.shared.isHost {
-          SessionManager.shared.feedbackCompletionCount += 1
-          SessionManager.shared.checkAllFeedbackCompleted()
+        SessionManager.shared.feedbackCompletionCount += 1
+        SessionManager.shared.checkAllFeedbackCompleted()
       } else {
-          if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID) {
-              if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
-                  SessionManager.shared.sendData(
-                      feedbackCompletedData,
-                      message: "feedbackCompleted",
-                      to: [hostPeerID]
-                  )
-              }
+        if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID) {
+          if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
+            SessionManager.shared.sendData(
+              feedbackCompletedData,
+              message: "feedbackCompleted",
+              to: [hostPeerID]
+            )
           }
+        }
       }
-
+      
       let resultLobbyVC = ResultLobbyViewController()
       self.navigationController?.pushViewController(resultLobbyVC, animated: true)
+    }
+    else {
+      let alert = UIAlertController(title: "피드백 미완료", message: "모든 참가자의 피드백을 완료해주세요.", preferredStyle: .alert)
+      alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
+      self.present(alert, animated: true, completion: nil)
+    }
   }
 }
 
@@ -136,20 +139,34 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
     cell.textLabel?.text = "\(userInfo.peerID)\n\(userInfo.role)"
     
     if userInfo.peerID == SessionManager.shared.peerID.displayName {
+      let meLabel = UILabel()
+      meLabel.text = "Me"
+      meLabel.textColor = .gray
+      meLabel.font = .sfPro(.body)
+      meLabel.sizeToFit()
+      meLabel.textAlignment = .left
+      meLabel.frame = CGRect(x: 0, y: 0, width: 30, height: 20)
+      
+      cell.accessoryView = meLabel
+    }
+    
+    else if completedUserPeerIDs.contains(userInfo.peerID) {
       cell.accessoryType = .checkmark
+      cell.accessoryView = nil
     } else {
-      cell.accessoryType = .none
+      cell.accessoryType = .disclosureIndicator
+      cell.accessoryView = nil
     }
     return cell
   }
   
   func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-      let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
-      
-      if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
-          return nil
-      }
-      return indexPath
+    let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
+    
+    if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
+      return nil
+    }
+    return indexPath
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -159,6 +176,11 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
     let modalDetailVC = UINavigationController(rootViewController: detailVC)
     modalDetailVC.modalPresentationStyle = .pageSheet
     detailVC.selectedUserInfo = selectedUserInfo
+    
+    detailVC.onFeedbackCompleted = { [weak self] peerID in
+      self?.completedUserPeerIDs.append(peerID)
+      self?.feedbackTableView.reloadData()
+    }
     
     present(modalDetailVC, animated: true, completion: nil)
   }
