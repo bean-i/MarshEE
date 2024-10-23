@@ -7,18 +7,18 @@
 
 import UIKit
 
-class HeatmapView: UIView {
+final class HeatmapView: UIView {
   
   var heatmapCollectionView: UICollectionView!
   var skillSet: SkillSet
-  var totalParticipants: Int
+//  var totalParticipants: Int
   var tooltipLabel: UILabel?
   
-  init(frame: CGRect, skillSet: SkillSet, totalParticipants: Int) {
+  init(frame: CGRect, skillSet: SkillSet/*, totalParticipants: Int*/) {
     self.skillSet = skillSet
-    self.totalParticipants = totalParticipants
+//    self.totalParticipants = totalParticipants
     super.init(frame: frame)
-    setupCollectionView()
+    setCollectionView()
   }
   
   required init?(coder: NSCoder) {
@@ -27,17 +27,17 @@ class HeatmapView: UIView {
   
   override func layoutSubviews() {
     super.layoutSubviews()
-    // layoutSubviews에서 frame을 기반으로 레이아웃 설정
     if let layout = heatmapCollectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-      let itemSize = bounds.width / 5  // 5x5 그리드 형태로 크기 조정
+      let itemSize = bounds.width / 5
       layout.itemSize = CGSize(width: itemSize, height: itemSize)
     }
-    heatmapCollectionView.frame = bounds  // collectionView의 크기를 view에 맞게 조정
+    heatmapCollectionView.frame = bounds
   }
   
-  func setupCollectionView() {
+  func setCollectionView() {
     let layout = UICollectionViewFlowLayout()
-    layout.itemSize = CGSize(width: frame.width / 5, height: frame.width / 5) // 셀 크기
+    
+    layout.itemSize = CGSize(width: frame.width / 5, height: frame.width / 5)
     layout.minimumInteritemSpacing = 0
     layout.minimumLineSpacing = 0
     
@@ -50,7 +50,6 @@ class HeatmapView: UIView {
     addSubview(heatmapCollectionView)
   }
   
-  // 툴팁을 보여주는 함수
   func showTooltip(for cell: HeatmapCell) {
     removeTooltip()
     
@@ -114,38 +113,35 @@ extension HeatmapView: UICollectionViewDataSource, UICollectionViewDelegateFlowL
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "HeatmapCell", for: indexPath) as! HeatmapCell
     let trait = skillSet.categories[indexPath.section].traits[indexPath.row]
-    cell.configure(categoryName: skillSet.categories[indexPath.section].name, traitName: trait.name, selectionCount: trait.count, totalParticipants: totalParticipants)
+    cell.configure(categoryName: skillSet.categories[indexPath.section].name, traitName: trait.name, selectionCount: trait.count/*, totalParticipants: totalParticipants*/)
     
-    // 터치 이벤트를 처리할 클로저 전달
     cell.showTooltip = { [weak self] touchedCell in
       self?.showTooltip(for: touchedCell)
     }
     cell.removeTooltip = { [weak self] in
       self?.removeTooltip()
     }
-    
     return cell
   }
 }
 
-// MARK: - HeatmapCell 정의
 class HeatmapCell: UICollectionViewCell {
   var categoryName: String = ""
   var traitName: String = ""
   var selectionCount: Int = 0
+  
   var showTooltip: ((HeatmapCell) -> Void)?
   var removeTooltip: (() -> Void)?
   
-  func configure(categoryName: String, traitName: String, selectionCount: Int, totalParticipants: Int) {
+  func configure(categoryName: String, traitName: String, selectionCount: Int/*, totalParticipants: Int*/) {
     self.categoryName = categoryName
     self.traitName = traitName
     self.selectionCount = selectionCount
     
-    // 선택 횟수에 따라 배경색 설정
     if selectionCount == 0 {
-      backgroundColor = .systemGray6
+      backgroundColor = .systemGray5
     } else {
-      let intensity = CGFloat(selectionCount) / CGFloat(totalParticipants)
+      let intensity = CGFloat(selectionCount) / CGFloat(SessionManager.shared.receivedUserInfos.count)
       let color = UIColor(red: 0.0, green: 122.0 / 255.0, blue: 1.0, alpha: intensity)
       backgroundColor = color
     }

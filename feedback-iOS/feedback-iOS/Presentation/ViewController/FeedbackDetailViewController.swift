@@ -18,13 +18,13 @@ class FeedbackDetailViewController: UIViewController {
   
   let scrollView = UIScrollView()
   let contentView = UIView()
-  
+  var userImageView = UILabel()
   let userName = UILabel()
   let userRole = UILabel()
-  
   var lastComponent: UIView? = nil
-  
   let doneButton = UIBarButtonItem()
+  
+  var onFeedbackCompleted: ((String) -> Void)?
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -41,6 +41,17 @@ class FeedbackDetailViewController: UIViewController {
     
     scrollView.do {
       $0.showsVerticalScrollIndicator = true
+    }
+    
+    userImageView.do {
+      if let firstCharacter = selectedUserInfo?.peerID.first {
+        $0.text = String(firstCharacter)
+      }
+      $0.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+      $0.textColor = .white
+      $0.backgroundColor = .lightGray
+      $0.textAlignment = .center
+      $0.roundCorners(cornerRadius: 31)
     }
     
     userName.do {
@@ -64,17 +75,19 @@ class FeedbackDetailViewController: UIViewController {
   }
   
   private func setUI() {
-    contentView.addSubviews(userName, userRole)
+    contentView.addSubviews(
+      userImageView,
+      userName,
+      userRole
+    )
     scrollView.addSubviews(contentView)
     view.addSubview(scrollView)
     
-    // 카테고리별로 FeedbackSelectionComponent를 생성하고 contentView에 추가
     for (index, category) in skill.categories.enumerated() {
       let feedbackComponent = FeedbackSelectionComponent(name: category.name, traits: category.traits)
       feedbackComponent.parentViewController = self
       contentView.addSubview(feedbackComponent)
       
-      // AutoLayout 설정 (컴포넌트 간격은 22)
       feedbackComponent.snp.makeConstraints {
         $0.leading.trailing.equalToSuperview().inset(20)
         if index == 0 {
@@ -87,7 +100,7 @@ class FeedbackDetailViewController: UIViewController {
       lastComponent = feedbackComponent
     }
     lastComponent?.snp.makeConstraints {
-      $0.bottom.equalToSuperview().offset(-20) // 마지막 컴포넌트는 contentView의 하단에 맞춤
+      $0.bottom.equalToSuperview().offset(-20)
     }
   }
   
@@ -102,8 +115,14 @@ class FeedbackDetailViewController: UIViewController {
       $0.width.equalToSuperview()
     }
     
+    userImageView.snp.makeConstraints {
+      $0.top.equalToSuperview().offset(32)
+      $0.centerX.equalToSuperview()
+      $0.width.height.equalTo(62)
+    }
+    
     userName.snp.makeConstraints {
-      $0.top.equalToSuperview().offset(120)
+      $0.top.equalTo(userImageView.snp.bottom).offset(16)
       $0.centerX.equalToSuperview()
     }
     
@@ -134,8 +153,6 @@ class FeedbackDetailViewController: UIViewController {
   }
   
   @objc private func doneButtonTapped() {
-//    print(skill)
-    
     
     if let selectedUserInfo = selectedUserInfo {
       do {
@@ -144,6 +161,8 @@ class FeedbackDetailViewController: UIViewController {
           let selectedFeedbacksData = try JSONEncoder().encode(skill)
           
           SessionManager.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
+          
+          onFeedbackCompleted?(selectedUserInfo.peerID)
         } else {
           print("해당 피어를 찾을 수 없습니다.")
         }
