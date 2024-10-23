@@ -18,6 +18,7 @@ class FeedbackDetailViewController: UIViewController {
   
   let scrollView = UIScrollView()
   let contentView = UIView()
+  var userImageView = UILabel()
   let userName = UILabel()
   let userRole = UILabel()
   var lastComponent: UIView? = nil
@@ -42,6 +43,17 @@ class FeedbackDetailViewController: UIViewController {
       $0.showsVerticalScrollIndicator = true
     }
     
+    userImageView.do {
+      if let firstCharacter = selectedUserInfo?.peerID.first {
+        $0.text = String(firstCharacter)
+      }
+      $0.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+      $0.textColor = .white
+      $0.backgroundColor = .lightGray
+      $0.textAlignment = .center
+      $0.roundCorners(cornerRadius: 31)
+    }
+    
     userName.do {
       $0.text = selectedUserInfo?.peerID
       $0.font = UIFont.sfPro(.title2)
@@ -63,7 +75,11 @@ class FeedbackDetailViewController: UIViewController {
   }
   
   private func setUI() {
-    contentView.addSubviews(userName, userRole)
+    contentView.addSubviews(
+      userImageView,
+      userName,
+      userRole
+    )
     scrollView.addSubviews(contentView)
     view.addSubview(scrollView)
     
@@ -99,8 +115,14 @@ class FeedbackDetailViewController: UIViewController {
       $0.width.equalToSuperview()
     }
     
+    userImageView.snp.makeConstraints {
+      $0.top.equalToSuperview().offset(32)
+      $0.centerX.equalToSuperview()
+      $0.width.height.equalTo(62)
+    }
+    
     userName.snp.makeConstraints {
-      $0.top.equalToSuperview().offset(120)
+      $0.top.equalTo(userImageView.snp.bottom).offset(16)
       $0.centerX.equalToSuperview()
     }
     

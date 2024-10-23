@@ -25,6 +25,8 @@ final class FeedbackViewController: UIViewController {
     setAutolayout()
     setTableView()
     updateTableViewHeight()
+    
+    print(SessionManager.shared.receivedUserInfos)
   }
   
   func setStyle() {

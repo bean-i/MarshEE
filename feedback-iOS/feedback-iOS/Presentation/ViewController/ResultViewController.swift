@@ -135,6 +135,7 @@ final class ResultViewController: UIViewController {
     )
     
     let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+      SessionManager.shared.stopSession()
       self.navigationController?.popToRootViewController(animated: true)
     }
     
