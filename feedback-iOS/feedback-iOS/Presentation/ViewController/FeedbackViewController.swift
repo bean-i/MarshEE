@@ -28,12 +28,12 @@ final class FeedbackViewController: UIViewController {
   }
   
   func setStyle() {
-    title = "Feedback"
+    title = "찌르기"
     navigationItem.hidesBackButton = true
     view.backgroundColor = .systemGray6
     
     feedbackTableViewHeader.do {
-      $0.text = "CHOOSE YOUR TEAMMATE"
+      $0.text = "팀원을 눌러서 SOFT SKILL 찌르기"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
@@ -44,10 +44,12 @@ final class FeedbackViewController: UIViewController {
     }
     
     finishFeedbackButton.do {
-      $0.setTitle("Report", for: .normal)
+      $0.setTitle("굽기", for: .normal)
       $0.backgroundColor = .systemBlue
-      $0.setImage(UIImage(systemName: "append.page"), for: .normal)
+      $0.setImage(UIImage(systemName: "flame.fill"), for: .normal)
       $0.tintColor = .white
+      $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
+      $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
     }
@@ -72,7 +74,7 @@ final class FeedbackViewController: UIViewController {
       $0.top.equalTo(feedbackTableViewHeader.snp.bottom).offset(10)
       $0.leading.equalToSuperview().offset(16)
       $0.trailing.equalToSuperview().offset(-16)
-      $0.height.equalTo(100)
+      $0.height.equalTo(200)
     }
     
     finishFeedbackButton.snp.makeConstraints {

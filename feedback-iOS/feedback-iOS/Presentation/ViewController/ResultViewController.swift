@@ -34,10 +34,9 @@ final class ResultViewController: UIViewController {
   }
   
   func setStyle() {
-    title = "Result"
+    title = "음미하기"
     view.backgroundColor = .systemGray6
     navigationItem.hidesBackButton = true
-    title = "Results"
     
     containerView.do {
       $0.backgroundColor = .white
@@ -58,17 +57,19 @@ final class ResultViewController: UIViewController {
     }
     
     containerViewFooter.do {
-      $0.text = "타일을 터치하여 키워드를 검색"
+      $0.text = "타일을 터치하여 잘 구워진 SOFT SKILL을 탐색"
       $0.font = .sfPro(.footer)
       $0.textColor = .gray
       $0.textAlignment = .left
     }
     
     doneButton.do {
-      $0.setTitle("Done", for: .normal)
-      $0.setImage(UIImage(systemName: "rectangle.and.pencil.and.ellipsis"), for: .normal)
+      $0.setTitle("음미 완료", for: .normal)
+      $0.setImage(UIImage(systemName: "fork.knife"), for: .normal)
       $0.tintColor = .white
       $0.backgroundColor = .systemBlue
+      $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
+      $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
     }

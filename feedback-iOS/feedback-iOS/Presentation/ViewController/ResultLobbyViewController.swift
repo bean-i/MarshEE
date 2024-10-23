@@ -29,6 +29,8 @@ final class ResultLobbyViewController: UIViewController {
   
   func setStyle() {
     view.backgroundColor = .white
+    title = "굽기"
+    navigationItem.hidesBackButton = true
     
     activityIndicator.do {
       $0.style = .large
@@ -36,7 +38,7 @@ final class ResultLobbyViewController: UIViewController {
     }
     
     waitingLabel.do {
-      $0.text = "Wail Until Every Participants Finish"
+      $0.text = "당신의 SOFT SKILL이 구워지는 중"
       $0.font = UIFont.sfPro(.body)
       $0.textColor = UIColor.lightGray
     }

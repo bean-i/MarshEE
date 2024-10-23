@@ -32,12 +32,17 @@ class LobbyViewController: UIViewController {
   
   func setStyle() {
     view.backgroundColor = .white
-    title = "세션 참가자"
+    title = "찌르기 대기"
     
     startFeedbackButton.do {
-      $0.setTitle("피드백 시작", for: .normal)
-      $0.backgroundColor = .gray
-      $0.setLayer(borderColor: .clear, cornerRadius: 20)
+      $0.setTitle("찌르기", for: .normal)
+      $0.setImage(UIImage(systemName: "hand.point.right.fill"), for: .normal)
+      $0.tintColor = .white
+      $0.backgroundColor = .systemBlue
+      $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
+      $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
+      $0.setLayer(borderColor: .clear, cornerRadius: 12)
+      $0.addTarget(self, action: #selector(startFeedbackButtonTapped), for: .touchUpInside)
     }
     
     activityIndicator.do {
@@ -46,28 +51,37 @@ class LobbyViewController: UIViewController {
     }
     
     waitingLabel.do {
-      $0.text = "Wail Until Every Participants Join"
+      $0.text = "멤버가 모두 참여할 때까지 대기"
       $0.font = UIFont.sfPro(.body)
       $0.textColor = UIColor.lightGray
     }
     
-    startFeedbackButton.addTarget(self, action: #selector(startFeedbackButtonTapped), for: .touchUpInside)
+    peersTableView.do {
+      $0.layer.cornerRadius = 10
+      $0.clipsToBounds = true
+    }
+    
   }
   
   func setUI() {
-    view.addSubviews(peersTableView, startFeedbackButton, activityIndicator, waitingLabel)
+    view.addSubviews(
+      peersTableView,
+      startFeedbackButton,
+      activityIndicator,
+      waitingLabel
+    )
   }
   
   func setAutoLayout() {
     peersTableView.snp.makeConstraints {
-      $0.top.leading.trailing.equalToSuperview()
-      $0.height.equalTo(500)
+      $0.top.leading.trailing.equalTo(view.safeAreaLayoutGuide)
+      $0.height.equalTo(400)
     }
     
     startFeedbackButton.snp.makeConstraints {
-      $0.centerX.equalToSuperview()
-      $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-50)
-      $0.width.equalTo(250)
+      $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-16)
+      $0.leading.equalToSuperview().offset(16)
+      $0.trailing.equalToSuperview().offset(-16)
       $0.height.equalTo(50)
     }
     
@@ -83,6 +97,7 @@ class LobbyViewController: UIViewController {
   }
   
   func setTableView() {
+    peersTableView.isScrollEnabled = false
     peersTableView.delegate = self
     peersTableView.dataSource = self
     peersTableView.register(UITableViewCell.self, forCellReuseIdentifier: "peerCell")
