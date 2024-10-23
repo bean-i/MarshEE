@@ -112,7 +112,11 @@ class LobbyViewController: UIViewController {
   @objc func startFeedbackButtonTapped() {
     do {
       let allUserInfoData = try JSONEncoder().encode(SessionManager.shared.receivedUserInfos)
-      SessionManager.shared.sendData(allUserInfoData, message: "startFeedback", to: SessionManager.shared.session.connectedPeers)
+      SessionManager.shared.sendData(
+        allUserInfoData,
+        message: "startFeedback",
+        to: SessionManager.shared.session.connectedPeers
+      )
     } catch {
       print("\(error.localizedDescription)")
     }

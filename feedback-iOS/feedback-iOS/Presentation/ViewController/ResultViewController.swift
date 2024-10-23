@@ -16,6 +16,7 @@ final class ResultViewController: UIViewController {
   let mostReceivedSkillLabel = UILabel()
   var hitmapView = HeatmapView(frame: .zero, skillSet: SessionManager.shared.resultData)
   let containerViewFooter = UILabel()
+  var isCompleted: Bool = false
   let doneButton = UIButton()
   
   override func viewDidLoad() {
@@ -33,6 +34,7 @@ final class ResultViewController: UIViewController {
   }
   
   func setStyle() {
+    title = "Result"
     view.backgroundColor = .systemGray6
     navigationItem.hidesBackButton = true
     title = "Results"
@@ -68,6 +70,7 @@ final class ResultViewController: UIViewController {
       $0.tintColor = .white
       $0.backgroundColor = .systemBlue
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
+      $0.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
     }
   }
   
@@ -123,6 +126,25 @@ final class ResultViewController: UIViewController {
     }
   }
   
+  @objc func doneButtonTapped() {
+    let alertController = UIAlertController(
+      title: "홈 화면으로 돌아가시겠습니까?",
+      message: nil,
+      preferredStyle: .alert
+    )
+    
+    let confirmAction = UIAlertAction(title: "확인", style: .default) { _ in
+      self.navigationController?.popToRootViewController(animated: true)
+    }
+    
+    let cancelAction = UIAlertAction(title: "취소", style: .cancel, handler: nil)
+    
+    alertController.addAction(confirmAction)
+    alertController.addAction(cancelAction)
+    
+    present(alertController, animated: true, completion: nil)
+  }
+  
   func findMostSelectedTraitAndCategory(in skillSet: SkillSet) -> (category: String, trait: String, count: Int)? {
     var mostSelected: (category: String, trait: String, count: Int)? = nil
     
@@ -137,6 +159,6 @@ final class ResultViewController: UIViewController {
         }
       }
     }
-      return mostSelected
+    return mostSelected
   }
 }

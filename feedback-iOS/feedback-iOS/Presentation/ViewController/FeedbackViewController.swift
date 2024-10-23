@@ -14,6 +14,7 @@ final class FeedbackViewController: UIViewController {
   let feedbackTableViewHeader = UILabel()
   let feedbackTableView = UITableView()
   let finishFeedbackButton = UIButton()
+  let meLabel = UILabel()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -36,6 +37,11 @@ final class FeedbackViewController: UIViewController {
       $0.textColor = .gray
     }
     
+    feedbackTableView.do {
+      $0.layer.cornerRadius = 10
+      $0.clipsToBounds = true
+    }
+    
     finishFeedbackButton.do {
       $0.setTitle("Report", for: .normal)
       $0.backgroundColor = .systemBlue
@@ -43,6 +49,12 @@ final class FeedbackViewController: UIViewController {
       $0.tintColor = .white
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
+    }
+    
+    meLabel.do {
+      $0.text = "Me"
+      $0.textColor = .gray
+      $0.font = .sfPro(.body)
     }
   }
   
@@ -64,7 +76,7 @@ final class FeedbackViewController: UIViewController {
     feedbackTableView.snp.makeConstraints {
       $0.top.equalTo(feedbackTableViewHeader.snp.bottom).offset(10)
       $0.leading.equalToSuperview().offset(16)
-      $0.leading.equalToSuperview().offset(-16)
+      $0.trailing.equalToSuperview().offset(-16)
       $0.height.equalTo(100)
     }
     
@@ -77,32 +89,39 @@ final class FeedbackViewController: UIViewController {
   }
   
   func setTableView() {
+    feedbackTableView.isScrollEnabled = false
     feedbackTableView.delegate = self
     feedbackTableView.dataSource = self
     feedbackTableView.register(UITableViewCell.self, forCellReuseIdentifier: FeedbackTableViewCell.identifier)
   }
   
   func updateTableViewHeight() {
-      let rowHeight = feedbackTableView.rowHeight
-      let numberOfRows = feedbackTableView.numberOfRows(inSection: 0)
-      let totalHeight = rowHeight * CGFloat(numberOfRows)
-      
-      feedbackTableView.snp.updateConstraints {
-          $0.height.equalTo(totalHeight)
-      }
+    feedbackTableView.layoutIfNeeded()
+    let totalHeight = feedbackTableView.contentSize.height
+    feedbackTableView.snp.updateConstraints {
+      $0.height.equalTo(totalHeight)
+    }
   }
   
   
   @objc func finishFeedbackButtonTapped() {
-//    do {
-//      let allUserInfoData = try JSONEncoder().encode(SessionManager.shared.receivedUserInfos)
-//      SessionManager.shared.sendData(allUserInfoData, message: "startFeedback", to: SessionManager.shared.session.connectedPeers)
-//    } catch {
-//      print("\(error.localizedDescription)")
-//    }
-//    
-    let resultVC = ResultViewController()
-    self.navigationController?.pushViewController(resultVC, animated: true)
+      if SessionManager.shared.isHost {
+          SessionManager.shared.feedbackCompletionCount += 1
+          SessionManager.shared.checkAllFeedbackCompleted()
+      } else {
+          if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID) {
+              if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
+                  SessionManager.shared.sendData(
+                      feedbackCompletedData,
+                      message: "feedbackCompleted",
+                      to: [hostPeerID]
+                  )
+              }
+          }
+      }
+
+      let resultLobbyVC = ResultLobbyViewController()
+      self.navigationController?.pushViewController(resultLobbyVC, animated: true)
   }
 }
 
@@ -114,15 +133,23 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
     let userInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
-    cell.textLabel?.text = userInfo.peerID
+    cell.textLabel?.text = "\(userInfo.peerID)\n\(userInfo.role)"
     
     if userInfo.peerID == SessionManager.shared.peerID.displayName {
       cell.accessoryType = .checkmark
     } else {
       cell.accessoryType = .none
     }
-    
     return cell
+  }
+  
+  func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+      let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
+      
+      if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
+          return nil
+      }
+      return indexPath
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

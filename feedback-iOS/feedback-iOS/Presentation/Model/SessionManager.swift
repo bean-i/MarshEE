@@ -28,9 +28,12 @@ final class SessionManager: NSObject {
   var localUserInfo: UserInfo?
   var projectName: String?
   var isHost: Bool = false
+  var feedbackCompletionCount: Int = 0
+  
   var receivedUserInfos: [UserInfo] = []
   var receivedFeedbackDatas: [SkillSet] = []
   var resultData: SkillSet = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
+  
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
   var onPushDataReceived: (() -> Void)?
@@ -119,6 +122,20 @@ final class SessionManager: NSObject {
       print("데이터 전송 실패: \(error.localizedDescription)")
     }
   }
+  
+  func checkAllFeedbackCompleted() {
+    if feedbackCompletionCount == receivedUserInfos.count {
+      DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        if let pushResultData = try? JSONEncoder().encode(self.localUserInfo) {
+          self.sendData(pushResultData, message: "showResults", to: self.session.connectedPeers)
+        }
+        let resultVC = ResultViewController()
+        if let navigationController = UIApplication.shared.windows.first?.rootViewController as? UINavigationController {
+            navigationController.pushViewController(resultVC, animated: true)
+        }
+      }
+    }
+  }
 }
 
 // MARK: - MCSessionDelegate
@@ -203,14 +220,17 @@ extension SessionManager: MCSessionDelegate {
               }
             }
           }
-          
-          for category in resultData.categories {
-            print("카테고리: \(category.name)")
-            for trait in category.traits {
-              print("   트레잇: \(trait.name), 선택 횟수: \(trait.count)")
-            }
-          }
-          print(resultData)
+        }
+        
+      case "feedbackCompleted":
+        feedbackCompletionCount += 1
+        if isHost {
+          checkAllFeedbackCompleted()
+        }
+        
+      case "showResults":
+        DispatchQueue.main.async {
+          self.onPushDataReceived?()
         }
         
       default:

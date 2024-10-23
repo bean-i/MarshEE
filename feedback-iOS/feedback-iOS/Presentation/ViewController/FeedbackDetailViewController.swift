@@ -132,8 +132,6 @@ class FeedbackDetailViewController: UIViewController {
   }
   
   @objc private func doneButtonTapped() {
-//    print(skill)
-    
     
     if let selectedUserInfo = selectedUserInfo {
       do {
