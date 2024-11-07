@@ -39,8 +39,8 @@ final class SessionManager: NSObject {
   var isHost: Bool = false
   var feedbackCompletionCount: Int = 0
   
-  var receivedUserInfos: [UserInfo] = []
-  var receivedFeedbackDatas: [SkillSet] = []
+  var connectedUserInfos: [UserInfo] = []
+  var myFeedbackDatas: [SkillSet] = []
   var resultData: SkillSet = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
   
   var onPeersChanged: (() -> Void)?
@@ -82,13 +82,17 @@ final class SessionManager: NSObject {
     self.projectName = projectName ?? "DefaultProject"
     
     peerID = MCPeerID(displayName: displayName)
-    session = MCSession(peer: peerID, securityIdentity: nil, encryptionPreference: .required)
+    session = MCSession(
+      peer: peerID,
+      securityIdentity: nil,
+      encryptionPreference: .required
+    )
     session.delegate = self
     
     if isHost {
       setAdvertiser()
       if let localUserInfo = localUserInfo {
-        receivedUserInfos.append(localUserInfo)
+        connectedUserInfos.append(localUserInfo)
       }
     } else {
       setBrowser(delegate: delegate)
@@ -133,7 +137,7 @@ final class SessionManager: NSObject {
   }
   
   func checkAllFeedbackCompleted() {
-    if feedbackCompletionCount == receivedUserInfos.count {
+    if feedbackCompletionCount == connectedUserInfos.count {
       DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
         if let pushResultData = try? JSONEncoder().encode(self.localUserInfo) {
           self.sendData(pushResultData, message: "showResults", to: self.session.connectedPeers)
@@ -149,17 +153,22 @@ final class SessionManager: NSObject {
 
 // MARK: - MCSessionDelegate
 extension SessionManager: MCSessionDelegate {
-  func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+  func session(
+    _ session: MCSession,
+    peer peerID: MCPeerID,
+    didChange state: MCSessionState
+  ) {
     switch state {
     case .connected:
-      if SessionManager.shared.isHost {
-        if let peerIDData = try? JSONEncoder().encode(SessionManager.shared.peerID.displayName) {
-          SessionManager.shared.sendData(
-            peerIDData,
-            message: "hostPeerID",
-            to: SessionManager.shared.session.connectedPeers
+      if !SessionManager.shared.isHost {
+        if let hostPeerID = SessionManager.shared.session.connectedPeers.first,
+           let localUserInfoData = try? JSONEncoder().encode(localUserInfo) {
+          sendData(
+            localUserInfoData,
+            message: "localUserInfo",
+            to: [hostPeerID]
           )
-          print("1. Host가 peer에게 hostID 전송")
+          print("Peer가 Host에게 LocalUserInfo 전송")
         }
       }
     case .connecting:
@@ -175,7 +184,11 @@ extension SessionManager: MCSessionDelegate {
     }
   }
   
-  func session(_ session: MCSession, didReceive data: Data, fromPeer departureID: MCPeerID) {
+  func session(
+    _ session: MCSession,
+    didReceive data: Data,
+    fromPeer departureID: MCPeerID
+  ) {
     DispatchQueue.main.async {
       self.onDataReceived?(data, departureID)
     }
@@ -184,31 +197,22 @@ extension SessionManager: MCSessionDelegate {
       print("수신한 메시지: \(receivedMessageData.message)")
       
       switch receivedMessageData.message {
-      case "hostPeerID":
-        if let hostPeerIDString = try? JSONDecoder().decode(String.self, from: receivedMessageData.data) {
-          
-          if let hostPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == hostPeerIDString }) {
-            
-            if let localUserInfoData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo) {
-              SessionManager.shared.sendData(
-                localUserInfoData,
-                message: "localUserInfo",
-                to: [hostPeerID]
-              )
-              print("2. Peer가 Host에게 LocalUserInfo를 전송")
-            }
-          }
-        }
         
       case "localUserInfo":
-        if let receivedUserInfo = try? JSONDecoder().decode(UserInfo.self, from: receivedMessageData.data) {
-          SessionManager.shared.receivedUserInfos.append(receivedUserInfo)
-          print("3. Host가 Peer의 LocalUserInfo를 수신")
+        if let receivedUserInfo = try? JSONDecoder().decode(
+          UserInfo.self,
+          from: receivedMessageData.data
+        ) {
+          SessionManager.shared.connectedUserInfos.append(receivedUserInfo)
+          print("Peer가 Session에 입장, Host가 Peer의 LocalUserInfo를 수신")
         }
         
       case "startFeedback":
-        if let allUserInfoData = try? JSONDecoder().decode([UserInfo].self, from: receivedMessageData.data) {
-          self.receivedUserInfos = allUserInfoData
+        if let receivedUserInfoData = try? JSONDecoder().decode(
+          [UserInfo].self,
+          from: receivedMessageData.data
+        ) {
+          self.connectedUserInfos = receivedUserInfoData
           DispatchQueue.main.async {
             self.onPushDataReceived?()
           }
@@ -216,11 +220,11 @@ extension SessionManager: MCSessionDelegate {
         
       case "sendFeedback":
         if let receivedFeedbackData = try? JSONDecoder().decode(SkillSet.self, from: receivedMessageData.data) {
-          self.receivedFeedbackDatas.append(receivedFeedbackData)
+          self.myFeedbackDatas.append(receivedFeedbackData)
           
           resultData = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
           
-          for feedbackData in receivedFeedbackDatas {
+          for feedbackData in myFeedbackDatas {
             for (categoryIndex, category) in feedbackData.categories.enumerated() {
               for (traitIndex, trait) in category.traits.enumerated() {
                 resultData.categories[categoryIndex].traits[traitIndex].count += trait.count

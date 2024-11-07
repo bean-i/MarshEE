@@ -332,11 +332,14 @@ final class HomeViewController: UIViewController {
       let userName = self.userNameTextField.text ?? ""
       let userRole = self.descriptionTextField.text ?? ""
       let projectName = alertController.textFields?.first?.text ?? ""
+      
+      /// Host의 로컬유저 정보 저장
       SessionManager.shared.setLocalUserInfo(
         name: userName,
         role: userRole
       )
       
+      /// SetSession
       if !projectName.isEmpty {
         SessionManager.shared.setSession(
           isHost: true,

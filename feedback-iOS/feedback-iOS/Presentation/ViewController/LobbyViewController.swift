@@ -125,19 +125,16 @@ class LobbyViewController: UIViewController {
   }
   
   @objc func startFeedbackButtonTapped() {
-    let uniqueUserInfos = NSOrderedSet(array: SessionManager.shared.receivedUserInfos).array as! [UserInfo]
-    SessionManager.shared.receivedUserInfos = uniqueUserInfos
-    do {
-      let allUserInfoData = try JSONEncoder().encode(uniqueUserInfos)
+    /// 연결된 피어에게 모든 피어의 PeerID 공유
+    if let connectedUserInfoData = try? JSONEncoder().encode(SessionManager.shared.connectedUserInfos) {
       SessionManager.shared.sendData(
-        allUserInfoData,
+        connectedUserInfoData,
         message: "startFeedback",
         to: SessionManager.shared.session.connectedPeers
       )
-    } catch {
-      print("\(error.localizedDescription)")
     }
     
+    ///
     let feedbackVC = FeedbackViewController()
     self.navigationController?.pushViewController(feedbackVC, animated: true)
   }

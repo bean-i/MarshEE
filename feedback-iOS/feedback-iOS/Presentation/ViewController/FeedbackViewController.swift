@@ -25,8 +25,6 @@ final class FeedbackViewController: UIViewController {
     setAutolayout()
     setTableView()
     updateTableViewHeight()
-    
-    print(SessionManager.shared.receivedUserInfos)
   }
   
   func setStyle() {
@@ -134,12 +132,12 @@ final class FeedbackViewController: UIViewController {
 
 extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return SessionManager.shared.receivedUserInfos.count
+    return SessionManager.shared.connectedUserInfos.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
-    let userInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
+    let userInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
     cell.textLabel?.text = "\(userInfo.peerID)\n\(userInfo.role)"
     
     if userInfo.peerID == SessionManager.shared.peerID.displayName {
@@ -165,7 +163,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-    let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
+    let selectedUserInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
     
     if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
       return nil
@@ -174,7 +172,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let selectedUserInfo = SessionManager.shared.receivedUserInfos[indexPath.row]
+    let selectedUserInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
     
     let detailVC = FeedbackDetailViewController()
     let modalDetailVC = UINavigationController(rootViewController: detailVC)

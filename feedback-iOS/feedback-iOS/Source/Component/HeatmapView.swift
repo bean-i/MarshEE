@@ -141,7 +141,7 @@ class HeatmapCell: UICollectionViewCell {
     if selectionCount == 0 {
       backgroundColor = .systemGray5
     } else {
-      let intensity = CGFloat(selectionCount) / CGFloat(SessionManager.shared.receivedUserInfos.count)
+      let intensity = CGFloat(selectionCount) / CGFloat(SessionManager.shared.connectedUserInfos.count)
       let color = UIColor(red: 0.0, green: 122.0 / 255.0, blue: 1.0, alpha: intensity)
       backgroundColor = color
     }
