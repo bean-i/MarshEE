@@ -160,7 +160,7 @@ class FeedbackDetailViewController: UIViewController {
           
           let selectedFeedbacksData = try JSONEncoder().encode(skill)
           
-          SessionManager.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
+          SessionDataSender.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
           
           onFeedbackCompleted?(selectedUserInfo.peerID)
         } else {

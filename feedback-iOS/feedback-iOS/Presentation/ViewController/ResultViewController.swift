@@ -14,7 +14,7 @@ final class ResultViewController: UIViewController {
   let containerView = UIView()
   let graphTitleLabel = UILabel()
   let mostReceivedSkillLabel = UILabel()
-  var hitmapView = HeatmapView(frame: .zero, skillSet: SessionManager.shared.resultData)
+  var hitmapView = HeatmapView(frame: .zero, skillSet: PeerInfoManager.shared.resultData)
   let containerViewFooter = UILabel()
   var isCompleted: Bool = false
   let doneButton = UIButton()
@@ -26,7 +26,7 @@ final class ResultViewController: UIViewController {
     setUI()
     setAutoLayout()
     
-    if let mostSelected = findMostSelectedTraitAndCategory(in: SessionManager.shared.resultData) {
+    if let mostSelected = findMostSelectedTraitAndCategory(in: PeerInfoManager.shared.resultData) {
       mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 􁾪"
     } else {
       mostReceivedSkillLabel.text = "데이터가 없습니다."

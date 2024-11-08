@@ -126,8 +126,8 @@ class LobbyViewController: UIViewController {
   
   @objc func startFeedbackButtonTapped() {
     /// 연결된 피어에게 모든 피어의 PeerID 공유
-    if let connectedUserInfoData = try? JSONEncoder().encode(SessionManager.shared.connectedUserInfos) {
-      SessionManager.shared.sendData(
+    if let connectedUserInfoData = try? JSONEncoder().encode(PeerInfoManager.shared.connectedUserInfos) {
+      SessionDataSender.shared.sendData(
         connectedUserInfoData,
         message: "startFeedback",
         to: SessionManager.shared.session.connectedPeers

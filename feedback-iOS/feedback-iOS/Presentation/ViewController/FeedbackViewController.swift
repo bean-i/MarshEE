@@ -110,7 +110,7 @@ final class FeedbackViewController: UIViewController {
       } else {
         if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID) {
           if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
-            SessionManager.shared.sendData(
+            SessionDataSender.shared.sendData(
               feedbackCompletedData,
               message: "feedbackCompleted",
               to: [hostPeerID]
@@ -132,12 +132,12 @@ final class FeedbackViewController: UIViewController {
 
 extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return SessionManager.shared.connectedUserInfos.count
+    return PeerInfoManager.shared.connectedUserInfos.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
-    let userInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
+    let userInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
     cell.textLabel?.text = "\(userInfo.peerID)\n\(userInfo.role)"
     
     if userInfo.peerID == SessionManager.shared.peerID.displayName {
@@ -163,7 +163,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-    let selectedUserInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
+    let selectedUserInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
     
     if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
       return nil
@@ -172,7 +172,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let selectedUserInfo = SessionManager.shared.connectedUserInfos[indexPath.row]
+    let selectedUserInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
     
     let detailVC = FeedbackDetailViewController()
     let modalDetailVC = UINavigationController(rootViewController: detailVC)
