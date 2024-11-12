@@ -4,10 +4,10 @@
 //
 //  Created by Chandrala on 10/9/24.
 
-import UIKit
+import MultipeerConnectivity
 import SnapKit
 import Then
-import MultipeerConnectivity
+import UIKit
 
 final class HomeViewController: UIViewController {
   
@@ -52,7 +52,7 @@ final class HomeViewController: UIViewController {
   // MARK: - UI Setup
   private func setStyle() {
     // View Background Color 적용
-    view.backgroundColor = UIColor(red: 242.0 / 255.0, green: 242.0 / 255.0, blue: 247.0 / 255.0, alpha: 1.0)
+    view.backgroundColor = .systemGray6
     
     // Configure Navigation Bar
     configureNavigationBar()
@@ -185,15 +185,6 @@ final class HomeViewController: UIViewController {
   }
   
   private func configureNavigationBar() {
-    let appearance = UINavigationBarAppearance()
-    appearance.configureWithOpaqueBackground()
-    appearance.backgroundColor = .white
-    appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
-    
-    navigationController?.navigationBar.prefersLargeTitles = true
-    navigationController?.navigationBar.standardAppearance = appearance
-    navigationController?.navigationBar.scrollEdgeAppearance = appearance
-    
     navigationItem.title = "홈"
   }
   
@@ -242,7 +233,7 @@ final class HomeViewController: UIViewController {
     }
     
     lineView.do {
-      $0.backgroundColor = UIColor(red: 84.0 / 255.0, green: 84.0 / 255.0, blue: 86.0 / 255.0, alpha: 0.34)
+      $0.backgroundColor = .systemGray.withAlphaComponent(0.54)
     }
     
     userDescriptionLabel.do {
@@ -271,28 +262,24 @@ final class HomeViewController: UIViewController {
     }
     
     createButton.do {
-      $0.setTitle("생성", for: .normal)
-      $0.titleLabel?.font = UIFont.sfPro(.body)
-      $0.setTitleColor(.white, for: .normal)
-      $0.setImage(UIImage(systemName: "plus.app"), for: .normal)
-      $0.tintColor = UIColor(.white)
-      $0.backgroundColor = .systemBlue
-      $0.setLayer(borderColor: .clear, cornerRadius: 12)
-      $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
-      $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
+      var config = UIButton.Configuration.filled()
+      config.title = "생성"
+      config.image = UIImage(systemName: "plus.app")
+      config.imagePadding = 4
+      config.cornerStyle = .medium
+      
+      $0.configuration = config
       $0.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
     }
     
     joinButton.do {
-      $0.setTitle("참가", for: .normal)
-      $0.titleLabel?.font = UIFont.sfPro(.body)
-      $0.setTitleColor(.systemBlue, for: .normal)
-      $0.setImage(UIImage(systemName: "person.badge.plus"), for: .normal)
-      $0.tintColor = .systemBlue
-      $0.backgroundColor = UIColor(red: 120.0 / 255.0, green: 120.0 / 255.0, blue: 128.0 / 255.0, alpha: 0.12)
-      $0.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 4)
-      $0.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 0)
-      $0.setLayer(borderColor: .clear, cornerRadius: 12)
+      var config = UIButton.Configuration.gray()
+      config.title = "참가"
+      config.image = UIImage(systemName: "person.badge.plus")
+      config.imagePadding = 4
+      config.cornerStyle = .medium
+      
+      $0.configuration = config
       $0.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
     }
     
