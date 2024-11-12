@@ -143,7 +143,7 @@ class FeedbackDetailViewController: UIViewController {
   func updateDoneButtonState() {
     for subview in contentView.subviews {
       if let feedbackComponent = subview as? FeedbackSelectionComponent {
-        if feedbackComponent.selectedTraitsTitles.count != feedbackComponent.maxSelectableTraits {
+        if feedbackComponent.selectedTraitTitles.count != feedbackComponent.maxTraitSelectionCount {
           doneButton.isEnabled = false
           return
         }

@@ -6,34 +6,25 @@
 //
 
 import UIKit
-
 import SnapKit
 import Then
 
 final class FeedbackSelectionComponent: UIView {
   
+  // MARK: - Components
   let titleLabel = UILabel()
-  
-  let buttonCollectionView: UICollectionView = {
-    let layout = LeftAlignedCollectionViewFlowLayout()
-    layout.scrollDirection = .vertical
-    layout.minimumLineSpacing = 8
-    layout.minimumInteritemSpacing = 7
-    layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-    layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-    return UICollectionView(frame: .zero, collectionViewLayout: layout)
-  }()
-  
+  let buttonCollectionView = UICollectionView(frame: .zero, collectionViewLayout: LeftAlignedCollectionViewFlowLayout())
   let footerLabel = UILabel()
   
-  private(set) var selectedTraitsTitles: [String] = []
-  let maxSelectableTraits = 2
-  
+  // MARK: - Properties
+  private(set) var selectedTraitTitles: [String] = []
+  let maxTraitSelectionCount = 2
   private var name: String
   private var traits: [Trait]
-  
   weak var parentViewController: FeedbackDetailViewController?
   
+  
+  // MARK: - Initializer
   init(name: String, traits: [Trait]) {
     self.name = name
     self.traits = traits
@@ -42,38 +33,51 @@ final class FeedbackSelectionComponent: UIView {
     setStyle()
     setUI()
     setAutoLayout()
-    
-    buttonCollectionView.delegate = self
-    buttonCollectionView.dataSource = self
-    buttonCollectionView.register(TraitButtonCell.self, forCellWithReuseIdentifier: "TraitCell")
   }
   
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
   
+  // MARK: - UI Setup
   private func setStyle() {
-    
     titleLabel.do {
-      $0.text = "\(name)"
+      $0.text = name
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
-
+    
     buttonCollectionView.do {
+      let layout = LeftAlignedCollectionViewFlowLayout()
+      layout.scrollDirection = .vertical
+      layout.minimumLineSpacing = 8
+      layout.minimumInteritemSpacing = 7
+      layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+      layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
+      $0.setCollectionViewLayout(layout, animated: false)
       $0.backgroundColor = .clear
     }
     
     footerLabel.do {
-      $0.text = "Data Collecting (0/2)"
+      $0.text = "Data Collecting (0/\(maxTraitSelectionCount))"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
     }
-    
   }
   
   private func setUI() {
-    self.addSubviews(titleLabel, buttonCollectionView, footerLabel)
+    self.addSubviews(
+      titleLabel,
+      buttonCollectionView,
+      footerLabel
+    )
+    
+    buttonCollectionView.delegate = self
+    buttonCollectionView.dataSource = self
+    buttonCollectionView.register(
+      TraitButtonCell.self,
+      forCellWithReuseIdentifier: TraitButtonCell.reuseIdentifier
+    )
   }
   
   private func setAutoLayout() {
@@ -90,11 +94,12 @@ final class FeedbackSelectionComponent: UIView {
     
     footerLabel.snp.makeConstraints {
       $0.top.equalTo(buttonCollectionView.snp.bottom).offset(12)
+      $0.bottom.equalToSuperview()
       $0.leading.equalToSuperview()
-      $0.bottom.equalToSuperview()  // 푸터 라벨이 컴포넌트의 끝
     }
   }
   
+  //?
   override func layoutSubviews() {
     super.layoutSubviews()
     updateCollectionViewHeight()
@@ -123,7 +128,7 @@ extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionView
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TraitCell", for: indexPath) as! TraitButtonCell
     let trait = traits[indexPath.item]
     
-    let isSelected = selectedTraitsTitles.contains(trait.name)
+    let isSelected = selectedTraitTitles.contains(trait.name)
     cell.configure(with: trait.name, isSelected: isSelected)
     
     return cell
@@ -136,15 +141,15 @@ extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionView
     
     // 선택한 항목을 추가/삭제
     let trait = traits[traitIndex]
-    if let index = selectedTraitsTitles.firstIndex(of: trait.name) {
-      selectedTraitsTitles.remove(at: index)
+    if let index = selectedTraitTitles.firstIndex(of: trait.name) {
+      selectedTraitTitles.remove(at: index)
       parentViewController?.updateTraitSelection(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: false)
       
     } else {
-      if selectedTraitsTitles.count >= 2 {
+      if selectedTraitTitles.count >= 2 {
         return
       }
-      selectedTraitsTitles.append(trait.name)
+      selectedTraitTitles.append(trait.name)
       parentViewController?.updateTraitSelection(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: true)
     }
     
@@ -159,10 +164,10 @@ extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionView
   
   
   private func updateFooterLabel() {
-    if selectedTraitsTitles.count == maxSelectableTraits {
-      footerLabel.text = "􀇻 All Data Collected (\(selectedTraitsTitles.count)/\(maxSelectableTraits))"
+    if selectedTraitTitles.count == maxTraitSelectionCount {
+      footerLabel.text = "􀇻 All Data Collected (\(selectedTraitTitles.count)/\(maxTraitSelectionCount))"
     } else {
-      footerLabel.text = "Data Collecting (\(selectedTraitsTitles.count)/\(maxSelectableTraits))"
+      footerLabel.text = "Data Collecting (\(selectedTraitTitles.count)/\(maxTraitSelectionCount))"
     }
   }
 }
