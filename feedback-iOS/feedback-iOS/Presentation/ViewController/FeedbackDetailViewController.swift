@@ -27,6 +27,8 @@ class FeedbackDetailViewController: UIViewController {
   var onFeedbackCompleted: ((String) -> Void)?
   
   override func viewDidLoad() {
+    
+    print("\(PeerInfoManager.shared.connectedUserInfos)")
     super.viewDidLoad()
     setStyle()
     setUI()
@@ -44,7 +46,7 @@ class FeedbackDetailViewController: UIViewController {
     }
     
     userImageView.do {
-      if let firstCharacter = selectedUserInfo?.peerID.first {
+      if let firstCharacter = selectedUserInfo?.peerID.displayName.first {
         $0.text = String(firstCharacter)
       }
       $0.font = UIFont.systemFont(ofSize: 32, weight: .bold)
@@ -55,7 +57,7 @@ class FeedbackDetailViewController: UIViewController {
     }
     
     userName.do {
-      $0.text = selectedUserInfo?.peerID
+      $0.text = selectedUserInfo?.peerID.displayName
       $0.font = UIFont.sfPro(.title2)
     }
     
@@ -71,7 +73,6 @@ class FeedbackDetailViewController: UIViewController {
       $0.action = #selector(doneButtonTapped)
       $0.isEnabled = false
     }
-    
   }
   
   private func setUI() {
@@ -156,13 +157,13 @@ class FeedbackDetailViewController: UIViewController {
     
     if let selectedUserInfo = selectedUserInfo {
       do {
-        if let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == selectedUserInfo.peerID }) {
+        if let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == selectedUserInfo.peerID.displayName }) {
           
           let selectedFeedbacksData = try JSONEncoder().encode(skill)
           
           SessionDataSender.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
           
-          onFeedbackCompleted?(selectedUserInfo.peerID)
+          onFeedbackCompleted?(selectedUserInfo.peerID.displayName)
         } else {
           print("해당 피어를 찾을 수 없습니다.")
         }

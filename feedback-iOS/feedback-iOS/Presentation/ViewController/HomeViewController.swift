@@ -373,11 +373,10 @@ final class HomeViewController: UIViewController {
       displayName: userName,
       delegate: self
     )
-        
-        if let browser = SessionManager.shared.browser {
-          present(browser, animated: true)
-        }
-      }
+    if let browser = SessionManager.shared.browser {
+      present(browser, animated: true)
+    }
+  }
   
   private func setupNotifications() {
     NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)

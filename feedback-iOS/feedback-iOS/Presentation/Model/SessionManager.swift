@@ -17,8 +17,13 @@ final class SessionManager: NSObject {
   var localUserInfo: UserInfo?
   var isHost: Bool = false
   var projectName: String?
-  var feedbackCompletionCount: Int = 0
   private let serviceType = "feedbacksession"
+  
+  var feedbackCompletionCount: Int = 0 {
+    didSet {
+      checkAllFeedbackCompleted()
+    }
+  }
   
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
@@ -88,6 +93,7 @@ final class SessionManager: NSObject {
   }
   
   func checkAllFeedbackCompleted() {
+    print("\(feedbackCompletionCount)")
     if feedbackCompletionCount == PeerInfoManager.shared.connectedUserInfos.count {
       DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
         if let pushResultData = try? JSONEncoder().encode(self.localUserInfo) {
@@ -100,6 +106,22 @@ final class SessionManager: NSObject {
         self.onPushDataReceived?()
       }
     }
+  }
+  
+  func reset() {
+    stopSession()
+    peerID = nil
+    session = nil
+    advertiser = nil
+    browser = nil
+    localUserInfo = nil
+    isHost = false
+    projectName = nil
+    feedbackCompletionCount = 0
+    onPeersChanged = nil
+    onDataReceived = nil
+    onPushDataReceived = nil
+    print("SessionManager 초기화 완료")
   }
 }
 

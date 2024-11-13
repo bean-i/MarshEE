@@ -102,31 +102,22 @@ final class FeedbackViewController: UIViewController {
   
   
   @objc func finishFeedbackButtonTapped() {
-    let totalParticipants = SessionManager.shared.session.connectedPeers.count + 1
-    if completedUserPeerIDs.count == totalParticipants - 1 {
-      if SessionManager.shared.isHost {
-        SessionManager.shared.feedbackCompletionCount += 1
-        SessionManager.shared.checkAllFeedbackCompleted()
-      } else {
-        if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID) {
-          if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
-            SessionDataSender.shared.sendData(
-              feedbackCompletedData,
-              message: "feedbackCompleted",
-              to: [hostPeerID]
-            )
-          }
-        }
-      }
-      
-      let resultLobbyVC = ResultLobbyViewController()
-      self.navigationController?.pushViewController(resultLobbyVC, animated: true)
+    if SessionManager.shared.isHost {
+      SessionManager.shared.feedbackCompletionCount += 1
     }
     else {
-      let alert = UIAlertController(title: "피드백 미완료", message: "모든 참가자의 피드백을 완료해주세요.", preferredStyle: .alert)
-      alert.addAction(UIAlertAction(title: "확인", style: .default, handler: nil))
-      self.present(alert, animated: true, completion: nil)
+      if let feedbackCompletedData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo?.peerID.displayName) {
+        if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
+          SessionDataSender.shared.sendData(
+            feedbackCompletedData,
+            message: "feedbackCompleted",
+            to: [hostPeerID]
+          )
+        }
+      }
     }
+    let resultLobbyVC = ResultLobbyViewController()
+    self.navigationController?.pushViewController(resultLobbyVC, animated: true)
   }
 }
 
@@ -138,9 +129,9 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
     let userInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
-    cell.textLabel?.text = "\(userInfo.peerID)\n\(userInfo.role)"
+    cell.textLabel?.text = "\(userInfo.peerID.displayName)\n\(userInfo.role)"
     
-    if userInfo.peerID == SessionManager.shared.peerID.displayName {
+    if userInfo.peerID.displayName == SessionManager.shared.peerID.displayName {
       let meLabel = UILabel()
       meLabel.text = "Me"
       meLabel.textColor = .gray
@@ -152,7 +143,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
       cell.accessoryView = meLabel
     }
     
-    else if completedUserPeerIDs.contains(userInfo.peerID) {
+    else if completedUserPeerIDs.contains(userInfo.peerID.displayName) {
       cell.accessoryType = .checkmark
       cell.accessoryView = nil
     } else {
@@ -165,7 +156,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
     let selectedUserInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
     
-    if selectedUserInfo.peerID == SessionManager.shared.localUserInfo?.peerID {
+    if selectedUserInfo.peerID.displayName == SessionManager.shared.localUserInfo?.peerID.displayName {
       return nil
     }
     return indexPath

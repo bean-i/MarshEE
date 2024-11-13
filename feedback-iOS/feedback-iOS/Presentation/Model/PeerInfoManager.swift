@@ -16,8 +16,10 @@ final class PeerInfoManager {
   var resultData: SkillSet = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
   
   func addPeerInfo(_ userInfo: UserInfo) {
-    connectedUserInfos.append(userInfo)
-    print("Peer 정보 추가됨: \(userInfo)")
+    if !connectedUserInfos.contains(where: { $0.peerID.displayName == userInfo.peerID.displayName }) {
+      connectedUserInfos.append(userInfo)
+      print("Peer 정보 추가됨: \(userInfo)")
+    }
   }
   
   func updateFeedback(with feedbackData: SkillSet) {
@@ -27,5 +29,12 @@ final class PeerInfoManager {
         resultData.categories[categoryIndex].traits[traitIndex].count += trait.count
       }
     }
+  }
+  
+  func reset() {
+    connectedUserInfos.removeAll()
+    myFeedbackDatas.removeAll()
+    resultData = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
+    print("PeerInfoManager 초기화 완료")
   }
 }

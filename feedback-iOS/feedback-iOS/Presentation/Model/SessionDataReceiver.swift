@@ -53,9 +53,6 @@ final class SessionDataReceiver {
       case "feedbackCompleted":
         SessionManager.shared.feedbackCompletionCount += 1
         print("피드백 완료 인원 추가")
-        if SessionManager.shared.isHost {
-          SessionManager.shared.checkAllFeedbackCompleted()
-        }
         
       case "showResults":
         DispatchQueue.main.async {
