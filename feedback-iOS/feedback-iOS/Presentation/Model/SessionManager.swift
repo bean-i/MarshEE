@@ -17,14 +17,16 @@ final class SessionManager: NSObject {
   var localUserInfo: UserInfo?
   var isHost: Bool = false
   var projectName: String?
+  
   private let serviceType = "feedbacksession"
+  private let dataProcessingQueue = DispatchQueue(label: "com.example.feedback.dataProcessing")
   
   var feedbackCompletionCount: Int = 0 {
     didSet {
       checkAllFeedbackCompleted()
     }
   }
-  
+  var onSessionConnected: (() -> Void)?
   var onPeersChanged: (() -> Void)?
   var onDataReceived: ((Data, MCPeerID) -> Void)?
   var onPushDataReceived: (() -> Void)?
@@ -135,18 +137,6 @@ extension SessionManager: MCSessionDelegate {
     switch state {
     case .connected:
       print("연결됨: \(peerID.displayName)")
-      if !isHost, let localUserInfoData = try? JSONEncoder().encode(localUserInfo) {
-        if let hostPeerID = session.connectedPeers.first {
-          SessionDataSender.shared.sendData(
-            localUserInfoData,
-            message: "localUserInfo",
-            to: [hostPeerID]
-          )
-          print(
-            "Peer가 Host에게 LocalUserInfo 전송"
-          )
-        }
-      }
       
     case .connecting:
       print("연결 중: \(peerID.displayName)")
@@ -161,10 +151,13 @@ extension SessionManager: MCSessionDelegate {
   }
   
   func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
-    DispatchQueue.main.async {
-      self.onDataReceived?(data, peerID)
+    dataProcessingQueue.async {
+      DispatchQueue.main.async {
+        self.onDataReceived?(data, peerID)
+      }
+      SessionDataReceiver.shared.processReceivedData(data, from: peerID)
+      print("\(peerID.displayName)의 \(data)처리")
     }
-    SessionDataReceiver.shared.processReceivedData(data, from: peerID)
   }
   
   func session(_ session: MCSession, didReceive stream: InputStream, withName streamName: String, fromPeer peerID: MCPeerID) {}
