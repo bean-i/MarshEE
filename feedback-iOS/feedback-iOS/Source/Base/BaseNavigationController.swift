@@ -15,22 +15,13 @@ public class BaseNavigationController: UINavigationController {
 
   private func configureNavigationBar() {
     let appearance = UINavigationBarAppearance()
-    appearance.configureWithTransparentBackground()
-    appearance.backgroundColor = .clear
-    appearance.shadowColor = .clear
-    appearance.titleTextAttributes = [
-      NSAttributedString.Key.foregroundColor: UIColor.black,
-      NSAttributedString.Key.font: UIFont.systemFont(ofSize: 32, weight: .medium)
-    ]
-    appearance.buttonAppearance.normal.titleTextAttributes = [
-        NSAttributedString.Key.foregroundColor: UIColor.black
-    ]
-
-    navigationBar.standardAppearance = appearance
-    navigationBar.scrollEdgeAppearance = navigationBar.standardAppearance
-
-    navigationBar.tintColor = .black
-    navigationItem.backButtonDisplayMode = .minimal
+    appearance.configureWithOpaqueBackground()
+    appearance.backgroundColor = .white
+    appearance.titleTextAttributes = [.foregroundColor: UIColor.black]
+    
+    self.navigationBar.prefersLargeTitles = true
+    self.navigationBar.standardAppearance = appearance
+    self.navigationBar.scrollEdgeAppearance = appearance
   }
 }
 
