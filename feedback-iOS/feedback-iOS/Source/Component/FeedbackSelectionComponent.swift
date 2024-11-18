@@ -224,7 +224,7 @@ final class TraitButtonCell: UICollectionViewCell {
   private func updateButtonAppearance(isSelected: Bool) {
     button.backgroundColor = isSelected
       ? UIColor.systemBlue.withAlphaComponent(0.15)
-      : UIColor.systemGray3.withAlphaComponent(0.12)
+      : UIColor.systemGray2.withAlphaComponent(0.12)
     
     button.setTitleColor(isSelected
       ? UIColor.systemBlue
