@@ -5,9 +5,9 @@
 //  Created by 이빈 on 10/16/24.
 //
 
-import UIKit
 import SnapKit
 import Then
+import UIKit
 
 final class FeedbackSelectionComponent: UIView {
   
@@ -19,14 +19,13 @@ final class FeedbackSelectionComponent: UIView {
   // MARK: - Properties
   private(set) var selectedTraitTitles: [String] = []
   let maxTraitSelectionCount = 2
-  private var name: String
+  private var categoryName: String
   private var traits: [Trait]
   weak var parentViewController: FeedbackDetailViewController?
   
-  
   // MARK: - Initializer
-  init(name: String, traits: [Trait]) {
-    self.name = name
+  init(categoryName: String, traits: [Trait]) {
+    self.categoryName = categoryName
     self.traits = traits
     super.init(frame: .zero)
     
@@ -41,12 +40,13 @@ final class FeedbackSelectionComponent: UIView {
   
   // MARK: - UI Setup
   private func setStyle() {
+    
     titleLabel.do {
-      $0.text = name
+      $0.text = categoryName
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
-    
+
     buttonCollectionView.do {
       let layout = LeftAlignedCollectionViewFlowLayout()
       layout.scrollDirection = .vertical
@@ -54,7 +54,7 @@ final class FeedbackSelectionComponent: UIView {
       layout.minimumInteritemSpacing = 7
       layout.sectionInset = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
       layout.estimatedItemSize = UICollectionViewFlowLayout.automaticSize
-      $0.setCollectionViewLayout(layout, animated: false)
+      $0.collectionViewLayout = layout
       $0.backgroundColor = .clear
     }
     
@@ -63,6 +63,7 @@ final class FeedbackSelectionComponent: UIView {
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
     }
+    
   }
   
   private func setUI() {
@@ -74,10 +75,7 @@ final class FeedbackSelectionComponent: UIView {
     
     buttonCollectionView.delegate = self
     buttonCollectionView.dataSource = self
-    buttonCollectionView.register(
-      TraitButtonCell.self,
-      forCellWithReuseIdentifier: TraitButtonCell.reuseIdentifier
-    )
+    buttonCollectionView.register(TraitButtonCell.self, forCellWithReuseIdentifier: TraitButtonCell.reuseIdentifier)
   }
   
   private func setAutoLayout() {
@@ -99,7 +97,6 @@ final class FeedbackSelectionComponent: UIView {
     }
   }
   
-  //?
   override func layoutSubviews() {
     super.layoutSubviews()
     updateCollectionViewHeight()
@@ -108,60 +105,9 @@ final class FeedbackSelectionComponent: UIView {
   private func updateCollectionViewHeight() {
     let height = buttonCollectionView.collectionViewLayout.collectionViewContentSize.height
     buttonCollectionView.snp.updateConstraints {
-      $0.height.equalTo(height)  // 자동으로 컬렉션 뷰의 높이를 조정
+      $0.height.equalTo(height)
     }
   }
-}
-
-
-extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
-  
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return traits.count
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    guard indexPath.item < traits.count else {
-      return UICollectionViewCell()
-    }
-    
-    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "TraitCell", for: indexPath) as! TraitButtonCell
-    let trait = traits[indexPath.item]
-    
-    let isSelected = selectedTraitTitles.contains(trait.name)
-    cell.configure(with: trait.name, isSelected: isSelected)
-    
-    return cell
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-    // 선택한 Trait의 인덱스 정보
-    let categoryIndex = parentViewController?.skill.categories.firstIndex(where: { $0.name == self.name }) ?? 0
-    let traitIndex = indexPath.item
-    
-    // 선택한 항목을 추가/삭제
-    let trait = traits[traitIndex]
-    if let index = selectedTraitTitles.firstIndex(of: trait.name) {
-      selectedTraitTitles.remove(at: index)
-      parentViewController?.updateTraitSelection(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: false)
-      
-    } else {
-      if selectedTraitTitles.count >= 2 {
-        return
-      }
-      selectedTraitTitles.append(trait.name)
-      parentViewController?.updateTraitSelection(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: true)
-    }
-    
-    // UI 갱신
-    collectionView.reloadItems(at: [indexPath])
-    
-    updateFooterLabel()
-    
-    // 완료 버튼 상태 업데이트
-    parentViewController?.updateDoneButtonState()
-  }
-  
   
   private func updateFooterLabel() {
     if selectedTraitTitles.count == maxTraitSelectionCount {
@@ -172,6 +118,58 @@ extension FeedbackSelectionComponent: UICollectionViewDelegate, UICollectionView
   }
 }
 
+// MARK: - Extension UICollectionView
+extension FeedbackSelectionComponent: UICollectionViewDataSource, UICollectionViewDelegate {
+  
+  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+    return traits.count
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    guard indexPath.item < traits.count else {
+      return UICollectionViewCell()
+    }
+    
+    let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TraitButtonCell.reuseIdentifier, for: indexPath) as! TraitButtonCell
+    let trait = traits[indexPath.item]
+    let isSelected = selectedTraitTitles.contains(trait.name)
+    cell.configure(with: trait.name, isSelected: isSelected)
+    return cell
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    // 선택한 Trait의 인덱스 정보
+    guard let categoryIndex = parentViewController?.skill.categories.firstIndex(where: { $0.name == self.categoryName }) else {
+      print("Invalid category index for \(self.categoryName)")
+      return
+    }
+    let traitIndex = indexPath.item
+    let trait = traits[traitIndex]
+    
+    // 삭제
+    if let index = selectedTraitTitles.firstIndex(of: trait.name) {
+      selectedTraitTitles.remove(at: index)
+      parentViewController?.updateSelectedTraitCount(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: false)
+    } else {
+      // 최대 선택 개수 확인
+      guard selectedTraitTitles.count < maxTraitSelectionCount else {
+        print("Max selectable traits reached")
+        return
+      }
+      // 추가
+      selectedTraitTitles.append(trait.name)
+      parentViewController?.updateSelectedTraitCount(categoryIndex: categoryIndex, traitIndex: traitIndex, increase: true)
+    }
+    
+    // UI 업데이트
+    collectionView.reloadItems(at: [indexPath])
+    updateFooterLabel()
+    parentViewController?.updateDoneButtonState()
+  }
+
+}
+
+// MARK: - UICollectionView Flow Layout
 class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
   
   override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
@@ -185,11 +183,8 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
         if layoutAttribute.frame.origin.y >= maxY {
           leftMargin = sectionInset.left
         }
-        
         layoutAttribute.frame.origin.x = leftMargin
-        
         leftMargin += layoutAttribute.frame.width + minimumInteritemSpacing
-      
         maxY = max(layoutAttribute.frame.maxY, maxY)
       }
     }
@@ -197,47 +192,42 @@ class LeftAlignedCollectionViewFlowLayout: UICollectionViewFlowLayout {
   }
 }
 
-
+// MARK: - UICollectionViewCell
 final class TraitButtonCell: UICollectionViewCell {
+  static let reuseIdentifier = "TraitButtonCell"
   
   private let button: UIButton = {
     let button = UIButton()
     button.titleLabel?.font = UIFont.sfPro(.subheadline)
-    button.backgroundColor = UIColor(red: 120.0 / 255.0, green: 120.0 / 255.0, blue: 128.0 / 255.0, alpha: 0.12)
-    button.configuration?.buttonSize = .medium
-    button.configuration?.contentInsets = .init(top: 10, leading: 14, bottom: 10, trailing: 14)
-    button.setTitleColor(UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 0.3), for: .normal)
     button.layer.cornerRadius = 15
     button.clipsToBounds = true
-    button.isUserInteractionEnabled = false  // 버튼이 직접 터치 이벤트를 처리하지 않도록 설정
+    button.isUserInteractionEnabled = false
     return button
   }()
   
   override init(frame: CGRect) {
     super.init(frame: frame)
     contentView.addSubview(button)
-    button.snp.makeConstraints {
-      $0.edges.equalToSuperview()
-    }
+    button.snp.makeConstraints { $0.edges.equalToSuperview() }
   }
   
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
   
-  private func updateButtonAppearance(isSelected: Bool) {
-    if isSelected {
-      button.backgroundColor = UIColor(red: 0.0 / 255.0, green: 122.0 / 255.0, blue: 255.0 / 255.0, alpha: 0.15)
-      button.setTitleColor(UIColor(red: 0.0 / 255.0, green: 122.0 / 255.0, blue: 255.0 / 255.0, alpha: 1.0), for: .normal)
-    } else {
-      button.backgroundColor = UIColor(red: 120.0 / 255.0, green: 120.0 / 255.0, blue: 128.0 / 255.0, alpha: 0.12)
-      button.setTitleColor(UIColor(red: 60.0 / 255.0, green: 60.0 / 255.0, blue: 67.0 / 255.0, alpha: 0.3), for: .normal)
-    }
-  }
-  
   func configure(with title: String, isSelected: Bool) {
     let trimmedTitle = title.components(separatedBy: " (").first ?? title
     button.setTitle("   " + trimmedTitle + "   ", for: .normal)
     updateButtonAppearance(isSelected: isSelected)
+  }
+  
+  private func updateButtonAppearance(isSelected: Bool) {
+    button.backgroundColor = isSelected
+      ? UIColor.systemBlue.withAlphaComponent(0.15)
+      : UIColor.systemGray3.withAlphaComponent(0.12)
+    
+    button.setTitleColor(isSelected
+      ? UIColor.systemBlue
+      : UIColor.systemGray2, for: .normal)
   }
 }
