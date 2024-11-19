@@ -1,5 +1,5 @@
 //
-//  TestViewController.swift
+//  FeedbackDetailViewController.swift
 //  feedback-iOS
 //
 //  Created by 이빈 on 10/16/24.
@@ -85,7 +85,7 @@ class FeedbackDetailViewController: UIViewController {
     view.addSubview(scrollView)
     
     for (index, category) in skill.categories.enumerated() {
-      let feedbackComponent = FeedbackSelectionComponent(name: category.name, traits: category.traits)
+      let feedbackComponent = FeedbackSelectionComponent(categoryName: category.name, traits: category.traits)
       feedbackComponent.parentViewController = self
       contentView.addSubview(feedbackComponent)
       
@@ -133,7 +133,7 @@ class FeedbackDetailViewController: UIViewController {
     }
   }
   
-  func updateTraitSelection(categoryIndex: Int, traitIndex: Int, increase: Bool) {
+  func updateSelectedTraitCount(categoryIndex: Int, traitIndex: Int, increase: Bool) {
     if increase {
       skill.categories[categoryIndex].traits[traitIndex].count += 1
     } else {
@@ -144,7 +144,7 @@ class FeedbackDetailViewController: UIViewController {
   func updateDoneButtonState() {
     for subview in contentView.subviews {
       if let feedbackComponent = subview as? FeedbackSelectionComponent {
-        if feedbackComponent.selectedTraitsTitles.count != feedbackComponent.maxSelectableTraits {
+        if feedbackComponent.selectedTraitTitles.count != feedbackComponent.maxTraitSelectionCount {
           doneButton.isEnabled = false
           return
         }
@@ -174,3 +174,4 @@ class FeedbackDetailViewController: UIViewController {
     dismiss(animated: true, completion: nil)
   }
 }
+
