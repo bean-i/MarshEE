@@ -59,7 +59,7 @@ final class SessionManager: NSObject {
     session.delegate = self
     
     if isHost {
-      setAdvertiser()
+      setAdvertiser(sessionName: projectName!)
       if let localUserInfo = localUserInfo {
         PeerInfoManager.shared.connectedUserInfos.append(localUserInfo)
       }
@@ -75,8 +75,12 @@ final class SessionManager: NSObject {
     print("세션 종료됨")
   }
   
-  private func setAdvertiser() {
-    advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+  private func setAdvertiser(sessionName: String) {
+    advertiser = MCNearbyServiceAdvertiser(
+      peer: peerID,
+      discoveryInfo: ["sessionName": sessionName],
+      serviceType: serviceType
+    )
     advertiser?.delegate = self
     advertiser?.startAdvertisingPeer()
   }

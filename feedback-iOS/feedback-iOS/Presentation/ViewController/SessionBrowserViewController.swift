@@ -13,9 +13,9 @@ import SnapKit
 final class SessionBrowserViewController: UIViewController {
   private let sessionTableView = UITableView()
   private var nearbyServiceBrowser: MCNearbyServiceBrowser!
-  private var discoveredPeers: [MCPeerID] = []
+  private var discoveredSessions: [(peerID: MCPeerID, sessionName: String)] = []
   var localUserInfoData: Data?
-
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -42,15 +42,18 @@ final class SessionBrowserViewController: UIViewController {
       $0.edges.equalToSuperview()
     }
   }
-
+  
   private func setTableView() {
     sessionTableView.delegate = self
     sessionTableView.dataSource = self
     sessionTableView.register(UITableViewCell.self, forCellReuseIdentifier: "PeerCell")
   }
-
+  
   private func startBrowsing() {
-    nearbyServiceBrowser = MCNearbyServiceBrowser(peer: SessionManager.shared.peerID, serviceType: "feedbacksession")
+    nearbyServiceBrowser = MCNearbyServiceBrowser(
+      peer: SessionManager.shared.peerID,
+      serviceType: "feedbacksession"
+    )
     nearbyServiceBrowser.delegate = self
     nearbyServiceBrowser.startBrowsingForPeers()
   }
@@ -70,19 +73,20 @@ final class SessionBrowserViewController: UIViewController {
 
 extension SessionBrowserViewController: MCNearbyServiceBrowserDelegate {
   func browser(_ browser: MCNearbyServiceBrowser, foundPeer peerID: MCPeerID, withDiscoveryInfo info: [String: String]?) {
-    if !discoveredPeers.contains(peerID) {
-      discoveredPeers.append(peerID)
+    if !discoveredSessions.contains(where: { $0.peerID == peerID }) {
+      let sessionName = info?["sessionName"] ?? "Unknown Session"
+      discoveredSessions.append((peerID: peerID, sessionName: sessionName))
       sessionTableView.reloadData()
     }
   }
-
+  
   func browser(_ browser: MCNearbyServiceBrowser, lostPeer peerID: MCPeerID) {
-    if let index = discoveredPeers.firstIndex(of: peerID) {
-      discoveredPeers.remove(at: index)
+    if let index = discoveredSessions.firstIndex(where: { $0.peerID == peerID }) {
+      discoveredSessions.remove(at: index)
       sessionTableView.reloadData()
     }
   }
-
+  
   func browser(_ browser: MCNearbyServiceBrowser, didNotStartBrowsingForPeers error: Error) {
     print("브라우저 시작 실패: \(error.localizedDescription)")
   }
@@ -91,20 +95,21 @@ extension SessionBrowserViewController: MCNearbyServiceBrowserDelegate {
 extension SessionBrowserViewController: UITableViewDelegate, UITableViewDataSource {
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return discoveredPeers.count
+    return discoveredSessions.count
   }
-
+  
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "PeerCell", for: indexPath)
-    cell.textLabel?.text = discoveredPeers[indexPath.row].displayName
+    let session = discoveredSessions[indexPath.row]
+    cell.textLabel?.text = session.sessionName
     return cell
   }
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let selectedPeer = discoveredPeers[indexPath.row]
+    let selectedSession = discoveredSessions[indexPath.row]
     let alert = UIAlertController(
       title: "세션 입장 확인",
-      message: "\(selectedPeer.displayName) 세션에 입장하시겠습니까?",
+      message: "\(selectedSession.sessionName) 세션에 입장하시겠습니까?",
       preferredStyle: .alert
     )
     
@@ -113,7 +118,7 @@ extension SessionBrowserViewController: UITableViewDelegate, UITableViewDataSour
       
       if let context = self.localUserInfoData {
         self.nearbyServiceBrowser.invitePeer(
-          selectedPeer,
+          selectedSession.peerID,
           to: SessionManager.shared.session,
           withContext: context,
           timeout: 30

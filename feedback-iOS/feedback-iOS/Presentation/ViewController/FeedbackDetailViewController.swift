@@ -38,7 +38,7 @@ class FeedbackDetailViewController: UIViewController {
   private func setStyle() {
     view.backgroundColor = .white
     
-    self.title = "Feedback"
+    self.title = "\(SessionManager.session.dis)"
     self.navigationItem.rightBarButtonItem = doneButton
     
     scrollView.do {

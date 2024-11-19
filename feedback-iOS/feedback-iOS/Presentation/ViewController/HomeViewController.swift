@@ -386,6 +386,7 @@ final class HomeViewController: UIViewController {
       name: userName,
       role: userDescription
     )
+    
     SessionManager.shared.setSession(
       isHost: false,
       displayName: userName,
