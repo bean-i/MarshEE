@@ -176,23 +176,26 @@ class FeedbackDetailViewController: UIViewController {
   }
   
   @objc private func doneButtonTapped() {
-    if let selectedUserInfo = selectedUserInfo {
-      do {
-        if let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0 == selectedUserInfo.peerID }) {
-          
-          let selectedFeedbacksData = try JSONEncoder().encode(skill)
-          
-          SessionDataSender.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
-          
-          onFeedbackCompleted?(selectedUserInfo.peerID.displayName)
-        } else {
-          print("해당 피어를 찾을 수 없습니다.")
-        }
-      } catch {
-        print("데이터 인코딩 실패: \(error.localizedDescription)")
+    guard let selectedUserInfo = selectedUserInfo else {
+      print("선택된 사용자 정보가 없습니다.")
+      return
+    }
+    
+    do {
+      guard let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == selectedUserInfo.peerID.displayName }) else {
+        print("해당 피어를 찾을 수 없습니다.")
+        return
       }
+      
+      let selectedFeedbacksData = try JSONEncoder().encode(skill)
+      
+      SessionDataSender.shared.sendData(selectedFeedbacksData, message: "sendFeedback", to: [targetPeerID])
+      
+      onFeedbackCompleted?(selectedUserInfo.peerID.displayName)
+    } catch {
+      print("데이터 인코딩 실패: \(error.localizedDescription)")
     }
     dismiss(animated: true, completion: nil)
   }
+  
 }
-

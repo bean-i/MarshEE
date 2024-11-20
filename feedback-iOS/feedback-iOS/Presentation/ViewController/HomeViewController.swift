@@ -190,7 +190,7 @@ final class HomeViewController: UIViewController {
   
   private func configureMainSectionStyle() {
     mainImageView.do {
-      $0.image = UIImage(named: "chart")
+      $0.image = UIImage(named: "marsheeLogo")
       $0.contentMode = .scaleAspectFit
     }
     
@@ -202,7 +202,7 @@ final class HomeViewController: UIViewController {
     }
     
     subTitleLabel.do {
-      $0.text = "의사소통, 자기개발, 문제해결, 팀워크, 리더십을\n상호 피드백으로 발전시켜 보세요."
+      $0.text = "이번 팀 활동은 어땠나요?\n모두의 발전을 위한 피드백 시간을 가져보아요"
       $0.font = UIFont.sfPro(.body)
       $0.numberOfLines = 0
       $0.textAlignment = .center
@@ -211,7 +211,7 @@ final class HomeViewController: UIViewController {
   
   private func configureUserInfoSectionStyle() {
     userInfoHeaderLabel.do {
-      $0.text = "당신의 아이덴티티"
+      $0.text = "유저 정보"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
@@ -243,7 +243,7 @@ final class HomeViewController: UIViewController {
     }
     
     userDescriptionTextField.do {
-      $0.placeholder = "내 역할을 어필해 더 정확한 결과 확인"
+      $0.placeholder = "이번 팀 활동에서 내 역할을 설명"
       $0.clearButtonMode = .always
     }
     
@@ -256,14 +256,14 @@ final class HomeViewController: UIViewController {
   
   private func configureButtonSectionStyle() {
     buttonHeaderLabel.do {
-      $0.text = "다음으로 세션을 시작해요"
+      $0.text = "다음으로 피드백을 시작"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
     
     createButton.do {
       var config = UIButton.Configuration.filled()
-      config.title = "생성"
+      config.title = "새 피드백 생성"
       config.image = UIImage(systemName: "plus.app")
       config.imagePadding = 4
       config.cornerStyle = .medium
@@ -274,7 +274,7 @@ final class HomeViewController: UIViewController {
     
     joinButton.do {
       var config = UIButton.Configuration.gray()
-      config.title = "참가"
+      config.title = "기존 피드백 참가"
       config.image = UIImage(systemName: "person.badge.plus")
       config.imagePadding = 4
       config.cornerStyle = .medium
@@ -291,7 +291,7 @@ final class HomeViewController: UIViewController {
     }
     
     buttonFooterLabel.do {
-      $0.text = "세션을를 통해 세션을 생성할 수 있고, 이미 생성된 세션에\n참가할 수도 있어요"
+      $0.text = "팀 내 대표 멤버가 먼저 새 피드백을 생성하고, 나머지 멤버는\n생성된 피드백에 참가해요"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
       $0.numberOfLines = 0
@@ -316,18 +316,18 @@ final class HomeViewController: UIViewController {
     let userDescription = userDescriptionTextField.text ?? ""
     
     if userName.isEmpty {
-      showAlert(title: "이름 입력 필요", message: "이름을 작성해주세요.")
+      showAlert(title: "이름 입력이 필요해요", message: "이름을 작성해주세요")
       return
     }
     
     if userDescription.isEmpty {
-      showAlert(title: "역할 입력 필요", message: "역할을 작성해주세요.")
+      showAlert(title: "역할 입력이 필요해요", message: "역할을 작성해주세요")
       return
     }
     
     // 이름과 역할 작성했다면, 프로젝트 생성 창 띄우기
     let alertController = UIAlertController(
-      title: "세션 생성하기",
+      title: "피드백 생성하기",
       message: "식별 가능한 프로젝트 이름을 설정해요",
       preferredStyle: .alert
     )
@@ -344,7 +344,7 @@ final class HomeViewController: UIViewController {
       
       // 프로젝트 이름 작성 확인
       if projectName.isEmpty {
-        self.showAlert(title: "프로젝트 이름 필요", message: "프로젝트 이름을 입력해주세요.")
+        self.showAlert(title: "프로젝트 이름이 필요해요", message: "프로젝트 이름을 입력해주세요")
         return
       }
       
@@ -373,12 +373,12 @@ final class HomeViewController: UIViewController {
   
   @objc private func joinButtonTapped() {
     guard let userName = userNameTextField.text, !userName.isEmpty else {
-      showAlert(title: "이름 입력 필요", message: "이름을 작성해주세요.")
+      showAlert(title: "이름 입력이 필요해요", message: "이름을 작성해주세요")
       return
     }
     
     guard let userDescription = userDescriptionTextField.text, !userDescription.isEmpty else {
-      showAlert(title: "역할 입력 필요", message: "역할을 작성해주세요.")
+      showAlert(title: "역할 입력이 필요해요", message: "역할을 작성해주세요")
       return
     }
 

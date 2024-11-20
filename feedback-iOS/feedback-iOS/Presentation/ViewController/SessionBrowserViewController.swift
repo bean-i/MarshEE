@@ -33,8 +33,7 @@ final class SessionBrowserViewController: UIViewController {
   
   private func setStyle() {
     view.backgroundColor = .white
-    title = "세션 검색"
-    navigationItem.hidesBackButton = true
+    title = "피드백에 참가하기"
   }
   
   private func setAutoLayout() {
@@ -101,7 +100,7 @@ extension SessionBrowserViewController: UITableViewDelegate, UITableViewDataSour
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: "PeerCell", for: indexPath)
     let session = discoveredSessions[indexPath.row]
-    cell.textLabel?.text = session.sessionName
+    cell.textLabel?.text = "\(session.sessionName)"
     return cell
   }
   

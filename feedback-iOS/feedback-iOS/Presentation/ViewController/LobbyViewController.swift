@@ -16,8 +16,10 @@ class LobbyViewController: UIViewController {
   
   let peersTableView = UITableView()
   let startFeedbackButton = UIButton()
-  let activityIndicator = UIActivityIndicatorView()
-  let waitingLabel = UILabel()
+  let activityIndicatorForHost = UIActivityIndicatorView()
+  let activityIndicatorForPeer = UIActivityIndicatorView()
+  let waitingLabelForHost = UILabel()
+  let waitingLabelForPeer = UILabel()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -34,6 +36,13 @@ class LobbyViewController: UIViewController {
     view.backgroundColor = .white
     title = "찌르기 대기"
     
+    navigationItem.leftBarButtonItem = UIBarButtonItem(
+      title: "뒤로",
+      style: .plain,
+      target: self,
+      action: #selector(backButtonTapped)
+    )
+    
     startFeedbackButton.do {
       $0.setTitle("찌르기", for: .normal)
       $0.setImage(UIImage(systemName: "hand.point.right.fill"), for: .normal)
@@ -45,13 +54,24 @@ class LobbyViewController: UIViewController {
       $0.addTarget(self, action: #selector(startFeedbackButtonTapped), for: .touchUpInside)
     }
     
-    activityIndicator.do {
+    activityIndicatorForHost.do {
       $0.style = .large
       $0.startAnimating()
     }
     
-    waitingLabel.do {
-      $0.text = "멤버가 모두 참여할 때까지 대기"
+    activityIndicatorForPeer.do {
+      $0.style = .large
+      $0.startAnimating()
+    }
+    
+    waitingLabelForHost.do {
+      $0.text = "멤버들이 참가 중입니다"
+      $0.font = UIFont.sfPro(.body)
+      $0.textColor = UIColor.lightGray
+    }
+    
+    waitingLabelForPeer.do {
+      $0.text = "멤버가 모두 참여할 때까지 대기하세요"
       $0.font = UIFont.sfPro(.body)
       $0.textColor = UIColor.lightGray
     }
@@ -67,8 +87,10 @@ class LobbyViewController: UIViewController {
     view.addSubviews(
       peersTableView,
       startFeedbackButton,
-      activityIndicator,
-      waitingLabel
+      activityIndicatorForHost,
+      activityIndicatorForPeer,
+      waitingLabelForHost,
+      waitingLabelForPeer
     )
   }
   
@@ -85,14 +107,24 @@ class LobbyViewController: UIViewController {
       $0.height.equalTo(50)
     }
     
-    activityIndicator.snp.makeConstraints {
+    activityIndicatorForHost.snp.makeConstraints {
       $0.centerX.equalToSuperview()
-      $0.top.equalTo(view.safeAreaLayoutGuide).offset(50)
+      $0.centerY.equalToSuperview()
     }
     
-    waitingLabel.snp.makeConstraints {
+    activityIndicatorForPeer.snp.makeConstraints {
       $0.centerX.equalToSuperview()
-      $0.top.equalTo(activityIndicator.snp.bottom).offset(5)
+      $0.centerY.equalToSuperview()
+    }
+    
+    waitingLabelForHost.snp.makeConstraints {
+      $0.centerX.equalToSuperview()
+      $0.top.equalTo(activityIndicatorForHost.snp.bottom).offset(5)
+    }
+    
+    waitingLabelForPeer.snp.makeConstraints {
+      $0.centerX.equalToSuperview()
+      $0.top.equalTo(activityIndicatorForPeer.snp.bottom).offset(5)
     }
   }
   
@@ -106,6 +138,10 @@ class LobbyViewController: UIViewController {
   func setSession() {
     SessionManager.shared.onPeersChanged = { [weak self] in
       self?.peersTableView.reloadData()
+      if self!.peersTableView.dataSource?.numberOfSections?(in: self!.peersTableView) != 0 {
+        self!.activityIndicatorForHost.isHidden = true
+        self!.waitingLabelForHost.isHidden = true
+      }
     }
     
     SessionManager.shared.onPushDataReceived = { [weak self] in
@@ -120,20 +156,28 @@ class LobbyViewController: UIViewController {
     startFeedbackButton.isHidden = !isHost
     peersTableView.isHidden = !isHost
     
-    activityIndicator.isHidden = isHost
-    waitingLabel.isHidden = isHost
+    activityIndicatorForPeer.isHidden = isHost
+    waitingLabelForPeer.isHidden = isHost
+    
+    activityIndicatorForHost.isHidden = !isHost
+    waitingLabelForHost.isHidden = !isHost
   }
   
   @objc func startFeedbackButtonTapped() {
-      if let connectedUserInfoData = try? JSONEncoder().encode(PeerInfoManager.shared.connectedUserInfos) {
-        SessionDataSender.shared.sendData(
-          connectedUserInfoData,
-          message: "startFeedback",
-          to: SessionManager.shared.session.connectedPeers
-        )
-      }
-      let feedbackVC = FeedbackViewController()
-      self.navigationController?.pushViewController(feedbackVC, animated: true)
+    if let connectedUserInfoData = try? JSONEncoder().encode(PeerInfoManager.shared.connectedUserInfos) {
+      SessionDataSender.shared.sendData(
+        connectedUserInfoData,
+        message: "startFeedback",
+        to: SessionManager.shared.session.connectedPeers
+      )
+    }
+    let feedbackVC = FeedbackViewController()
+    self.navigationController?.pushViewController(feedbackVC, animated: true)
+  }
+  
+  @objc private func backButtonTapped() {
+    SessionManager.shared.reset()
+    navigationController?.popViewController(animated: true)
   }
 }
 

@@ -101,8 +101,19 @@ final class SessionManager: NSObject {
     }
   }
   
-  func reset() {
-    stopSession()
+  @objc func reset() {
+    if let session = session {
+      session.disconnect()
+    }
+    
+    if isHost, let advertiser = advertiser {
+      advertiser.stopAdvertisingPeer()
+    }
+    
+    onPeersChanged = nil
+    onDataReceived = nil
+    onPushDataReceived = nil
+    
     peerID = nil
     session = nil
     advertiser = nil
@@ -110,9 +121,7 @@ final class SessionManager: NSObject {
     isHost = false
     projectName = nil
     feedbackCompletionCount = 0
-    onPeersChanged = nil
-    onDataReceived = nil
-    onPushDataReceived = nil
+    
     print("SessionManager 초기화 완료")
   }
 }
@@ -124,6 +133,7 @@ extension SessionManager: MCSessionDelegate {
     peer peerID: MCPeerID,
     didChange state: MCSessionState
   ) {
+    guard self.session == session else { return }
     switch state {
     case .connected:
       print("연결됨: \(peerID.displayName)")
@@ -140,7 +150,11 @@ extension SessionManager: MCSessionDelegate {
     DispatchQueue.main.async { self.onPeersChanged?() }
   }
   
-  func session(_ session: MCSession, didReceive data: Data, fromPeer peerID: MCPeerID) {
+  func session(
+    _ session: MCSession,
+    didReceive data: Data,
+    fromPeer peerID: MCPeerID
+  ) {
     dataProcessingQueue.async {
       DispatchQueue.main.async {
         self.onDataReceived?(data, peerID)

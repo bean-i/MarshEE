@@ -11,11 +11,28 @@ import Then
 
 final class FeedbackViewController: UIViewController {
   
+  enum FinishFeedbackButtonState {
+    case activate
+    case deactivate
+  }
+  
+  private var completedUserCount: Int = 0 {
+    didSet {
+      updateUI()
+    }
+  }
+  var completedUserPeerIDs: [String] = [] {
+    didSet {
+      completedUserCount = completedUserPeerIDs.count
+    }
+  }
+  
+  let feedbackGuideLabel = UILabel()
   let feedbackTableViewHeader = UILabel()
   let feedbackTableView = UITableView()
+  let completedUserCountLabel = UILabel()
   let finishFeedbackButton = UIButton()
-  
-  var completedUserPeerIDs: [String] = []
+  let finishFeedbackButtonFooterLabel = UILabel()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -25,12 +42,22 @@ final class FeedbackViewController: UIViewController {
     setAutolayout()
     setTableView()
     updateTableViewHeight()
+    
+    setFinishFeedbackButtonState(.deactivate)
   }
   
   func setStyle() {
     title = "찌르기"
     navigationItem.hidesBackButton = true
     view.backgroundColor = .systemGray6
+    
+    feedbackGuideLabel.do {
+      $0.text = "SOFT SKILL에 대한 피드백을 시작해요\n각 5가지 항목에서 적합한 블럭을 2개씩 골라주세요"
+      $0.font = UIFont.sfPro(.body)
+      $0.textColor = .black
+      $0.numberOfLines = 2
+      $0.textAlignment = .center
+    }
     
     feedbackTableViewHeader.do {
       $0.text = "팀원을 눌러서 SOFT SKILL 찌르기"
@@ -43,6 +70,12 @@ final class FeedbackViewController: UIViewController {
       $0.clipsToBounds = true
     }
     
+    completedUserCountLabel.do {
+      $0.text = "현재 찌르기 완료 (\(completedUserCount)/\(SessionManager.shared.session.connectedPeers.count))"
+      $0.font = UIFont.sfPro(.footer)
+      $0.textColor = .gray
+    }
+    
     finishFeedbackButton.do {
       $0.setTitle("굽기", for: .normal)
       $0.backgroundColor = .systemBlue
@@ -53,20 +86,34 @@ final class FeedbackViewController: UIViewController {
       $0.setLayer(borderColor: .clear, cornerRadius: 12)
       $0.addTarget(self, action: #selector(finishFeedbackButtonTapped), for: .touchUpInside)
     }
+    
+    finishFeedbackButtonFooterLabel.do {
+      $0.text = "모든 팀원에 대한 평가 완료 후 굽기를 눌러 결과 확인"
+      $0.font = UIFont.sfPro(.footer)
+      $0.textColor = .gray
+    }
   }
   
   func setUI() {
     view.addSubviews(
+      feedbackGuideLabel,
       feedbackTableViewHeader,
       feedbackTableView,
-      finishFeedbackButton
+      completedUserCountLabel,
+      finishFeedbackButton,
+      finishFeedbackButtonFooterLabel
     )
   }
   
   func setAutolayout() {
     
+    feedbackGuideLabel.snp.makeConstraints {
+      $0.top.equalTo(view.safeAreaLayoutGuide).offset(32)
+      $0.centerX.equalToSuperview()
+    }
+    
     feedbackTableViewHeader.snp.makeConstraints {
-      $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+      $0.top.equalTo(feedbackGuideLabel.snp.bottom).offset(32)
       $0.leading.equalToSuperview().offset(32)
     }
     
@@ -77,11 +124,21 @@ final class FeedbackViewController: UIViewController {
       $0.height.equalTo(200)
     }
     
+    completedUserCountLabel.snp.makeConstraints {
+      $0.top.equalTo(feedbackTableView.snp.bottom).offset(10)
+      $0.leading.equalToSuperview().offset(32)
+    }
+    
     finishFeedbackButton.snp.makeConstraints {
-      $0.top.equalTo(feedbackTableView.snp.bottom).offset(32)
+      $0.top.equalTo(completedUserCountLabel.snp.bottom).offset(32)
       $0.leading.equalToSuperview().offset(16)
       $0.trailing.equalToSuperview().offset(-16)
       $0.height.equalTo(50)
+    }
+    
+    finishFeedbackButtonFooterLabel.snp.makeConstraints {
+      $0.top.equalTo(finishFeedbackButton.snp.bottom).offset(10)
+      $0.leading.equalToSuperview().offset(32)
     }
   }
   
@@ -100,6 +157,28 @@ final class FeedbackViewController: UIViewController {
     }
   }
   
+  private func updateUI() {
+    let totalUsers = PeerInfoManager.shared.connectedUserInfos.count - 1
+    if completedUserCount == totalUsers {
+      setFinishFeedbackButtonState(.activate)
+    } else {
+      setFinishFeedbackButtonState(.deactivate)
+    }
+    completedUserCountLabel.text = "현재 찌르기 완료 (\(completedUserCount)/\(totalUsers))"
+  }
+  
+  private func setFinishFeedbackButtonState(_ state: FinishFeedbackButtonState) {
+    switch state {
+    case .activate:
+      finishFeedbackButton.isEnabled = true
+      finishFeedbackButton.backgroundColor = .systemBlue
+    case .deactivate:
+      finishFeedbackButton.isEnabled = false
+      finishFeedbackButton.backgroundColor = .systemGray5
+      finishFeedbackButton.tintColor = .systemGray
+      finishFeedbackButton.setTitleColor(.systemGray, for: .normal)
+    }
+  }
   
   @objc func finishFeedbackButtonTapped() {
     if SessionManager.shared.isHost {
@@ -145,6 +224,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
     
     else if completedUserPeerIDs.contains(userInfo.peerID.displayName) {
       cell.accessoryType = .checkmark
+      cell.isUserInteractionEnabled = false
       cell.accessoryView = nil
     } else {
       cell.accessoryType = .disclosureIndicator
