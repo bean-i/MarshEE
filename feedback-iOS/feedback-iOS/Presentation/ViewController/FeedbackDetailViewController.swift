@@ -12,34 +12,35 @@ import Then
 
 class FeedbackDetailViewController: UIViewController {
   
+  // MARK: - Components
+  private let scrollView = UIScrollView()
+  private let contentView = UIView()
+  private var userImageView = UILabel()
+  private let userName = UILabel()
+  private let userRole = UILabel()
+  private var lastComponent: UIView? = nil
+  private let backButton = UIBarButtonItem()
+  private let doneButton = UIBarButtonItem()
+  
+  // MARK: - Properties
   var skill = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
-  
   var selectedUserInfo: UserInfo?
-  
-  let scrollView = UIScrollView()
-  let contentView = UIView()
-  var userImageView = UILabel()
-  let userName = UILabel()
-  let userRole = UILabel()
-  var lastComponent: UIView? = nil
-  let doneButton = UIBarButtonItem()
-  
   var onFeedbackCompleted: ((String) -> Void)?
   
+  // MARK: - Lifecycle
   override func viewDidLoad() {
-    
-    print("\(PeerInfoManager.shared.connectedUserInfos)")
     super.viewDidLoad()
     setStyle()
     setUI()
     setAutoLayout()
   }
   
+  // MARK: - UI Setup
   private func setStyle() {
     view.backgroundColor = .white
-    
-    self.title = "Feedback"
-    self.navigationItem.rightBarButtonItem = doneButton
+    title = "찌르기"
+    navigationItem.leftBarButtonItem = backButton
+    navigationItem.rightBarButtonItem = doneButton
     
     scrollView.do {
       $0.showsVerticalScrollIndicator = true
@@ -66,6 +67,13 @@ class FeedbackDetailViewController: UIViewController {
       $0.font = UIFont.sfPro(.body)
     }
     
+    backButton.do {
+      $0.image = UIImage(systemName: "chevron.left")
+      $0.style = .plain
+      $0.target = self
+      $0.action = #selector(backButtonTapped)
+    }
+    
     doneButton.do {
       $0.title = "Done"
       $0.style = .done
@@ -84,29 +92,11 @@ class FeedbackDetailViewController: UIViewController {
     scrollView.addSubviews(contentView)
     view.addSubview(scrollView)
     
-    for (index, category) in skill.categories.enumerated() {
-      let feedbackComponent = FeedbackSelectionComponent(categoryName: category.name, traits: category.traits)
-      feedbackComponent.parentViewController = self
-      contentView.addSubview(feedbackComponent)
-      
-      feedbackComponent.snp.makeConstraints {
-        $0.leading.trailing.equalToSuperview().inset(20)
-        if index == 0 {
-          $0.top.equalTo(userRole.snp.bottom).offset(16)
-        } else {
-          let previousComponent = contentView.subviews[contentView.subviews.firstIndex(of: feedbackComponent)! - 1]
-          $0.top.equalTo(previousComponent.snp.bottom).offset(22)
-        }
-      }
-      lastComponent = feedbackComponent
-    }
-    lastComponent?.snp.makeConstraints {
-      $0.bottom.equalToSuperview().offset(-20)
-    }
+    addFeedbackSelectionComponent()
+    setupLastComponentConstraints()
   }
   
   private func setAutoLayout() {
-    
     scrollView.snp.makeConstraints {
       $0.edges.equalTo(view.safeAreaLayoutGuide)
     }
@@ -133,6 +123,33 @@ class FeedbackDetailViewController: UIViewController {
     }
   }
   
+  // MARK: - Create Component
+  private func addFeedbackSelectionComponent() {
+    for (index, category) in skill.categories.enumerated() {
+      let feedbackSelectionComponent = FeedbackSelectionComponent(categoryName: category.name, traits: category.traits)
+      feedbackSelectionComponent.parentViewController = self
+      contentView.addSubview(feedbackSelectionComponent)
+      
+      feedbackSelectionComponent.snp.makeConstraints {
+        $0.leading.trailing.equalToSuperview().inset(20)
+        if index == 0 {
+          $0.top.equalTo(userRole.snp.bottom).offset(16)
+        } else {
+          let previousComponent = contentView.subviews[contentView.subviews.firstIndex(of: feedbackSelectionComponent)! - 1]
+          $0.top.equalTo(previousComponent.snp.bottom).offset(22)
+        }
+      }
+      lastComponent = feedbackSelectionComponent
+    }
+  }
+  
+  private func setupLastComponentConstraints() {
+    lastComponent?.snp.makeConstraints {
+      $0.bottom.equalToSuperview().offset(-20)
+    }
+  }
+  
+  // MARK: - Update Methods
   func updateSelectedTraitCount(categoryIndex: Int, traitIndex: Int, increase: Bool) {
     if increase {
       skill.categories[categoryIndex].traits[traitIndex].count += 1
@@ -153,11 +170,15 @@ class FeedbackDetailViewController: UIViewController {
     doneButton.isEnabled = true
   }
   
+  // MARK: - Actions
+  @objc private func backButtonTapped() {
+    dismiss(animated: true, completion: nil)
+  }
+  
   @objc private func doneButtonTapped() {
-    
     if let selectedUserInfo = selectedUserInfo {
       do {
-        if let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0.displayName == selectedUserInfo.peerID.displayName }) {
+        if let targetPeerID = SessionManager.shared.session.connectedPeers.first(where: { $0 == selectedUserInfo.peerID }) {
           
           let selectedFeedbacksData = try JSONEncoder().encode(skill)
           

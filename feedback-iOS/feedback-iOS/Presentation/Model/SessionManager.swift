@@ -13,7 +13,6 @@ final class SessionManager: NSObject {
   var peerID: MCPeerID!
   var session: MCSession!
   var advertiser: MCNearbyServiceAdvertiser?
-  var browser: MCBrowserViewController?
   var localUserInfo: UserInfo?
   var isHost: Bool = false
   var projectName: String?
@@ -60,12 +59,10 @@ final class SessionManager: NSObject {
     session.delegate = self
     
     if isHost {
-      setAdvertiser()
+      setAdvertiser(sessionName: projectName!)
       if let localUserInfo = localUserInfo {
         PeerInfoManager.shared.connectedUserInfos.append(localUserInfo)
       }
-    } else {
-      setBrowser(delegate: delegate)
     }
   }
   
@@ -74,24 +71,18 @@ final class SessionManager: NSObject {
     
     if isHost {
       advertiser?.stopAdvertisingPeer()
-    } else {
-      browser?.dismiss(animated: true, completion: nil)
     }
     print("세션 종료됨")
   }
   
-  private func setAdvertiser() {
-    advertiser = MCNearbyServiceAdvertiser(peer: peerID, discoveryInfo: nil, serviceType: serviceType)
+  private func setAdvertiser(sessionName: String) {
+    advertiser = MCNearbyServiceAdvertiser(
+      peer: peerID,
+      discoveryInfo: ["sessionName": sessionName],
+      serviceType: serviceType
+    )
     advertiser?.delegate = self
     advertiser?.startAdvertisingPeer()
-  }
-  
-  private func setBrowser(delegate: MCBrowserViewControllerDelegate?) {
-    browser = MCBrowserViewController(
-      serviceType: serviceType,
-      session: session
-    )
-    browser?.delegate = delegate
   }
   
   func checkAllFeedbackCompleted() {
@@ -115,7 +106,6 @@ final class SessionManager: NSObject {
     peerID = nil
     session = nil
     advertiser = nil
-    browser = nil
     localUserInfo = nil
     isHost = false
     projectName = nil
@@ -181,6 +171,17 @@ extension SessionManager: MCBrowserViewControllerDelegate {
 // MARK: - MCNearbyServiceAdvertiserDelegate
 extension SessionManager: MCNearbyServiceAdvertiserDelegate {
   func advertiser(_ advertiser: MCNearbyServiceAdvertiser, didReceiveInvitationFromPeer peerID: MCPeerID, withContext context: Data?, invitationHandler: @escaping (Bool, MCSession?) -> Void) {
+    
+    if let contextData = context {
+      do {
+        let receivedUserInfo = try JSONDecoder().decode(UserInfo.self, from: contextData)
+        print("받은 UserInfo: \(receivedUserInfo)")
+        PeerInfoManager.shared.connectedUserInfos.append(receivedUserInfo)
+      } catch {
+        print("\(error.localizedDescription)")
+      }
+    }
+    
     invitationHandler(true, session)
   }
 }

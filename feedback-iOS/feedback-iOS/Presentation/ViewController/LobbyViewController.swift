@@ -22,7 +22,6 @@ class LobbyViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    sendUserInfoData()
     setStyle()
     setUI()
     setAutoLayout()
@@ -126,8 +125,6 @@ class LobbyViewController: UIViewController {
   }
   
   @objc func startFeedbackButtonTapped() {
-    showLoadingIndicator()
-    DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
       if let connectedUserInfoData = try? JSONEncoder().encode(PeerInfoManager.shared.connectedUserInfos) {
         SessionDataSender.shared.sendData(
           connectedUserInfoData,
@@ -137,40 +134,6 @@ class LobbyViewController: UIViewController {
       }
       let feedbackVC = FeedbackViewController()
       self.navigationController?.pushViewController(feedbackVC, animated: true)
-    }
-  }
-  
-  private func showLoadingIndicator() {
-    guard let window = UIApplication.shared.windows.first else { return }
-    let overlayView = UIView(frame: window.bounds)
-    
-    overlayView.backgroundColor = UIColor(white: 0, alpha: 0.3)
-    let activityIndicator = UIActivityIndicatorView(style: .large)
-    activityIndicator.center = overlayView.center
-    activityIndicator.startAnimating()
-    
-    overlayView.addSubview(activityIndicator)
-    view.addSubview(overlayView)
-    
-    view.isUserInteractionEnabled = false
-  }
-  
-  private func sendUserInfoData() {
-    let delay = Double(abs(SessionManager.shared.localUserInfo?.uuid.hashValue ?? 0) % 5000) / 1000.0
-    print(delay)
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-      if !SessionManager.shared.isHost, let localUserInfoData = try? JSONEncoder().encode(SessionManager.shared.localUserInfo) {
-        if let hostPeerID = SessionManager.shared.session.connectedPeers.first {
-          SessionDataSender.shared.sendData(
-            localUserInfoData,
-            message: "localUserInfo",
-            to: [hostPeerID]
-          )
-          print("Peer가 Host에게 LocalUserInfo 전송")
-        }
-      }
-    }
   }
 }
 

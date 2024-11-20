@@ -386,15 +386,15 @@ final class HomeViewController: UIViewController {
       name: userName,
       role: userDescription
     )
+    
     SessionManager.shared.setSession(
       isHost: false,
       displayName: userName,
       delegate: self
     )
     
-    if let browser = SessionManager.shared.browser {
-      present(browser, animated: true)
-    }
+    let SessionBrowserVC = SessionBrowserViewController()
+    self.navigationController?.pushViewController(SessionBrowserVC, animated: true)
   }
   
   // MARK: - Keyboard
