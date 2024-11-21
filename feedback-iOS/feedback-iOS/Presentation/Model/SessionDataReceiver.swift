@@ -16,13 +16,6 @@ final class SessionDataReceiver {
       print("수신한 메시지: \(receivedMessageData.message)")
       
       switch receivedMessageData.message {
-      case "localUserInfo":
-        if let receivedUserInfo = try? JSONDecoder().decode(
-          UserInfo.self,
-          from: receivedMessageData.data
-        ) {
-          PeerInfoManager.shared.addPeerInfo(receivedUserInfo)
-        }
         
       case "startFeedback":
         if let allUserInfoData = try? JSONDecoder().decode(

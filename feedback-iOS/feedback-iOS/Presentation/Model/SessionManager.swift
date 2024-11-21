@@ -143,6 +143,7 @@ extension SessionManager: MCSessionDelegate {
       
     case .notConnected:
       print("연결 끊김: \(peerID.displayName)")
+      PeerInfoManager.shared.removePeerInfo(for: peerID)
       
     @unknown default:
       fatalError("알 수 없는 상태")

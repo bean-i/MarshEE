@@ -16,10 +16,16 @@ final class PeerInfoManager {
   var resultData: SkillSet = SkillSet(categories: [communication, selfDevelopment, problemSolving, teamwork, leadership])
   
   func addPeerInfo(_ userInfo: UserInfo) {
-    if !connectedUserInfos.contains(where: { $0.peerID.displayName == userInfo.peerID.displayName }) {
+    let existingDisplayNames = Set(connectedUserInfos.map { $0.peerID.displayName })
+    if !existingDisplayNames.contains(userInfo.peerID.displayName) {
       connectedUserInfos.append(userInfo)
       print("Peer 정보 추가됨: \(userInfo)")
     }
+  }
+  
+  func removePeerInfo(for peerID: MCPeerID) {
+    connectedUserInfos.removeAll { $0.peerID.displayName == peerID.displayName }
+      print("Peer 정보 제거됨: \(peerID.displayName)")
   }
   
   func updateFeedback(with feedbackData: SkillSet) {

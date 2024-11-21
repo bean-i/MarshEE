@@ -138,9 +138,13 @@ class LobbyViewController: UIViewController {
   func setSession() {
     SessionManager.shared.onPeersChanged = { [weak self] in
       self?.peersTableView.reloadData()
+      print(PeerInfoManager.shared.connectedUserInfos)
       if self!.peersTableView.dataSource?.numberOfSections?(in: self!.peersTableView) != 0 {
         self!.activityIndicatorForHost.isHidden = true
         self!.waitingLabelForHost.isHidden = true
+      } else {
+        self!.activityIndicatorForHost.isHidden = false
+        self!.waitingLabelForHost.isHidden = false
       }
     }
     
@@ -177,6 +181,7 @@ class LobbyViewController: UIViewController {
   
   @objc private func backButtonTapped() {
     SessionManager.shared.reset()
+    PeerInfoManager.shared.reset()
     navigationController?.popViewController(animated: true)
   }
 }

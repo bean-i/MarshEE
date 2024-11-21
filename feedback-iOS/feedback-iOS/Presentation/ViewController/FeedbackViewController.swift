@@ -44,6 +44,8 @@ final class FeedbackViewController: UIViewController {
     updateTableViewHeight()
     
     setFinishFeedbackButtonState(.deactivate)
+    
+    print(PeerInfoManager.shared.connectedUserInfos)
   }
   
   func setStyle() {
@@ -172,6 +174,8 @@ final class FeedbackViewController: UIViewController {
     case .activate:
       finishFeedbackButton.isEnabled = true
       finishFeedbackButton.backgroundColor = .systemBlue
+      finishFeedbackButton.tintColor = .white
+      finishFeedbackButton.setTitleColor(.white, for: .normal)
     case .deactivate:
       finishFeedbackButton.isEnabled = false
       finishFeedbackButton.backgroundColor = .systemGray5
@@ -208,7 +212,7 @@ extension FeedbackViewController: UITableViewDelegate, UITableViewDataSource {
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: FeedbackTableViewCell.identifier, for: indexPath)
     let userInfo = PeerInfoManager.shared.connectedUserInfos[indexPath.row]
-    cell.textLabel?.text = "\(userInfo.peerID.displayName)\n\(userInfo.role)"
+    cell.textLabel?.text = "\(userInfo.peerID.displayName)"
     
     if userInfo.peerID.displayName == SessionManager.shared.peerID.displayName {
       let meLabel = UILabel()
