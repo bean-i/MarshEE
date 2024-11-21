@@ -12,6 +12,7 @@ import SnapKit
 final class ResultViewController: UIViewController {
   
   let containerView = UIView()
+  let usageGuideLabel = UILabel()
   let graphTitleLabel = UILabel()
   let mostReceivedSkillLabel = UILabel()
   var hitmapView = HeatmapView(frame: .zero, skillSet: PeerInfoManager.shared.resultData)
@@ -26,11 +27,7 @@ final class ResultViewController: UIViewController {
     setUI()
     setAutoLayout()
     
-    if let mostSelected = findMostSelectedTraitAndCategory(in: PeerInfoManager.shared.resultData) {
-      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 􁾪"
-    } else {
-      mostReceivedSkillLabel.text = "데이터가 없습니다."
-    }
+    updateMostReceivedSkillLabel()
   }
   
   func setStyle() {
@@ -41,6 +38,13 @@ final class ResultViewController: UIViewController {
     containerView.do {
       $0.backgroundColor = .white
       $0.roundCorners(cornerRadius: 10)
+    }
+    
+    usageGuideLabel.do {
+      $0.text = "잘 구워진 SOFT SKILL을 음미할 차례예요\n타일을 터치해 상세 정보를 확인하세요"
+      $0.font = UIFont.sfPro(.body)
+      $0.numberOfLines = 0
+      $0.textAlignment = .center
     }
     
     graphTitleLabel.do {
@@ -57,14 +61,14 @@ final class ResultViewController: UIViewController {
     }
     
     containerViewFooter.do {
-      $0.text = "타일을 터치하여 잘 구워진 SOFT SKILL을 탐색"
+      $0.text = "더 진한 타일은 더 많이 구워진 SOFT SKILL을 의미함"
       $0.font = .sfPro(.footer)
       $0.textColor = .gray
       $0.textAlignment = .left
     }
     
     doneButton.do {
-      $0.setTitle("음미 완료", for: .normal)
+      $0.setTitle("완료", for: .normal)
       $0.setImage(UIImage(systemName: "fork.knife"), for: .normal)
       $0.tintColor = .white
       $0.backgroundColor = .systemBlue
@@ -77,6 +81,7 @@ final class ResultViewController: UIViewController {
   
   func setUI() {
     view.addSubviews(
+      usageGuideLabel,
       containerView,
       containerViewFooter,
       doneButton
@@ -90,11 +95,16 @@ final class ResultViewController: UIViewController {
   }
   
   func setAutoLayout() {
+    usageGuideLabel.snp.makeConstraints {
+      $0.top.equalTo(view.safeAreaLayoutGuide.snp.top).offset(32)
+      $0.centerX.equalToSuperview()
+    }
+    
     containerView.snp.makeConstraints {
-      $0.top.equalTo(view.safeAreaLayoutGuide).offset(16)
+      $0.top.equalTo(usageGuideLabel.snp.bottom).offset(16)
       $0.leading.equalToSuperview().offset(16)
       $0.trailing.equalToSuperview().offset(-16)
-      $0.height.equalTo(452)
+      $0.bottom.equalTo(hitmapView.snp.bottom).offset(16)
     }
     
     graphTitleLabel.snp.makeConstraints {
@@ -108,7 +118,7 @@ final class ResultViewController: UIViewController {
     }
     
     hitmapView.snp.makeConstraints {
-      $0.top.equalTo(mostReceivedSkillLabel.snp.bottom).offset(24)
+      $0.top.equalTo(mostReceivedSkillLabel.snp.bottom).offset(16)
       $0.leading.trailing.equalToSuperview().inset(16)
       $0.height.equalTo(hitmapView.snp.width)
       $0.bottom.equalToSuperview().offset(-16)
@@ -124,6 +134,15 @@ final class ResultViewController: UIViewController {
       $0.trailing.equalToSuperview().offset(-16)
       $0.bottom.equalTo(view.safeAreaLayoutGuide).offset(-16)
       $0.height.equalTo(50)
+    }
+  }
+  
+  private func updateMostReceivedSkillLabel() {
+    if let mostSelected = findMostSelectedTraitAndCategory(in: PeerInfoManager.shared.resultData) {
+      let occurrences = findMostSelectedTraitCountOccurrences(in: PeerInfoManager.shared.resultData)
+      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 외 \(occurrences - 1) 􁾪"
+    } else {
+      mostReceivedSkillLabel.text = "데이터가 없습니다."
     }
   }
   
@@ -163,5 +182,17 @@ final class ResultViewController: UIViewController {
       }
     }
     return mostSelected
+  }
+  
+  private func findMostSelectedTraitCountOccurrences(in skillSet: SkillSet) -> Int {
+    guard let mostSelected = findMostSelectedTraitAndCategory(in: skillSet) else {
+      return 0
+    }
+    
+    let mostSelectedCount = mostSelected.count
+    return skillSet.categories
+      .flatMap { $0.traits }
+      .filter { $0.count == mostSelectedCount }
+      .count
   }
 }
