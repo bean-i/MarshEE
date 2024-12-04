@@ -1,6 +1,11 @@
 # MarshEE!
 ### MarshEE는 팀원 간 **소프트 스킬**을 상호 평가함으로써 성장을 돕는 **피드백 서비스**입니다.
-마치 Marshmallow처럼 부드러운 다섯 영역의 **SOFT SKILL** <의사소통, 자기개발, 문제해결, 팀워크, 리더십>을 맛있게 구워 음미해봐요
+마치 Marshmallow처럼 부드러운 다섯 영역의 **SOFT SKILL** <의사소통, 자기개발, 문제해결, 팀워크, 리더십>을 맛있게 구워 음미해봐요  
+<br>
+<a href="https://apps.apple.com/kr/app/marshee/id6738468804">
+  <img src="https://github.com/user-attachments/assets/ee9e9205-3443-490a-acd8-96836ade55b0" alt="앱스토어에서 다운로드" width="80">
+</a>
+<p style="text-align: center;"><b>앱스토어에서 다운로드</b></p>
 
 ## 서비스 소개
 **AS-IS (현재 상황)**
