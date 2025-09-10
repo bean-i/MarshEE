@@ -185,7 +185,7 @@ final class HomeViewController: UIViewController {
   }
   
   private func configureNavigationBar() {
-    navigationItem.title = "홈"
+    navigationItem.title = "Home"
   }
   
   private func configureMainSectionStyle() {
@@ -195,14 +195,14 @@ final class HomeViewController: UIViewController {
     }
     
     mainTitleLabel.do {
-      $0.text = "당신의 말랑한 SOFT SKILL,\n찌르고 굽고 음미해봐요"
+      $0.text = "あなたの柔らかなSOFT SKILL、\n刺して、焼いて、味わおう"
       $0.font = UIFont.sfPro(.title2)
       $0.numberOfLines = 0
       $0.textAlignment = .center
     }
     
     subTitleLabel.do {
-      $0.text = "이번 팀 활동은 어땠나요?\n모두의 발전을 위한 피드백 시간을 가져보아요"
+      $0.text = "今回のチーム活動はいかがでしたか？\nフィードバックの時間を持ちましょう。"
       $0.font = UIFont.sfPro(.body)
       $0.numberOfLines = 0
       $0.textAlignment = .center
@@ -211,7 +211,7 @@ final class HomeViewController: UIViewController {
   
   private func configureUserInfoSectionStyle() {
     userInfoHeaderLabel.do {
-      $0.text = "유저 정보"
+      $0.text = "ユーザー情報"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
@@ -222,13 +222,13 @@ final class HomeViewController: UIViewController {
     }
     
     userNameLabel.do {
-      $0.text = "이름"
+      $0.text = "名前"
       $0.font = UIFont.sfPro(.body)
       $0.sizeToFit()
     }
     
     userNameTextField.do {
-      $0.placeholder = "내 이름을 작성" // 수정
+      $0.placeholder = "自分の名前を入力" // 수정
       $0.clearButtonMode = .always
     }
     
@@ -237,18 +237,18 @@ final class HomeViewController: UIViewController {
     }
     
     userDescriptionLabel.do {
-      $0.text = "설명"
+      $0.text = "説明"
       $0.font = UIFont.sfPro(.body)
       $0.sizeToFit()
     }
     
     userDescriptionTextField.do {
-      $0.placeholder = "이번 팀 활동에서 내 역할을 설명"
+      $0.placeholder = "今回のチーム活動での自分の役割を説明"
       $0.clearButtonMode = .always
     }
     
     userInfoFooterLabel.do {
-      $0.text = "식별 가능한 유저 이름과 설명을 작성해 주세요"
+      $0.text = "識別可能なユーザー名と説明を入力してください"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
     }
@@ -256,14 +256,14 @@ final class HomeViewController: UIViewController {
   
   private func configureButtonSectionStyle() {
     buttonHeaderLabel.do {
-      $0.text = "다음으로 피드백을 시작"
+      $0.text = "次にフィードバックを開始"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
     
     createButton.do {
       var config = UIButton.Configuration.filled()
-      config.title = "새 피드백 생성"
+      config.title = "Create"
       config.image = UIImage(systemName: "plus.app")
       config.imagePadding = 4
       config.cornerStyle = .medium
@@ -274,7 +274,7 @@ final class HomeViewController: UIViewController {
     
     joinButton.do {
       var config = UIButton.Configuration.gray()
-      config.title = "기존 피드백 참가"
+      config.title = "Join"
       config.image = UIImage(systemName: "person.badge.plus")
       config.imagePadding = 4
       config.cornerStyle = .medium
@@ -291,7 +291,7 @@ final class HomeViewController: UIViewController {
     }
     
     buttonFooterLabel.do {
-      $0.text = "팀 내 대표 멤버가 먼저 새 피드백을 생성하고, 나머지 멤버는\n생성된 피드백에 참가해요"
+      $0.text = "チーム内の代表メンバーが先に新しいフィードバックを作成し、\n他のメンバーは作成されたフィードバックに参加します。"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
       $0.numberOfLines = 0

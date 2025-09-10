@@ -31,7 +31,7 @@ final class ResultViewController: UIViewController {
   }
   
   func setStyle() {
-    title = "음미하기"
+    title = "味わう"
     view.backgroundColor = .systemGray6
     navigationItem.hidesBackButton = true
     
@@ -41,14 +41,14 @@ final class ResultViewController: UIViewController {
     }
     
     usageGuideLabel.do {
-      $0.text = "잘 구워진 SOFT SKILL을 음미할 차례예요\n타일을 터치해 상세 정보를 확인하세요"
+      $0.text = "焼き上がったSOFT SKILLを味わう番です\nタイルをタップして詳細情報を確認してください"
       $0.font = UIFont.sfPro(.body)
       $0.numberOfLines = 0
       $0.textAlignment = .center
     }
     
     graphTitleLabel.do {
-      $0.text = "이번 프로젝트에서 가장 두드러진 능력"
+      $0.text = "今回のプロジェクトで最も際立ったスキル"
       $0.textColor = .black
       $0.font = UIFont.sfPro(.body)
       $0.textAlignment = .left
@@ -58,17 +58,19 @@ final class ResultViewController: UIViewController {
       $0.textColor = .systemBlue
       $0.font = UIFont.sfPro(.title2)
       $0.textAlignment = .left
+      $0.numberOfLines = 0
+      $0.lineBreakMode = .byWordWrapping
     }
     
     containerViewFooter.do {
-      $0.text = "더 진한 타일은 더 많이 구워진 SOFT SKILL을 의미함"
+      $0.text = "色が濃いタイルは、より多く評価されたSOFT SKILLを示します"
       $0.font = .sfPro(.footer)
       $0.textColor = .gray
       $0.textAlignment = .left
     }
     
     doneButton.do {
-      $0.setTitle("완료", for: .normal)
+      $0.setTitle("完了", for: .normal)
       $0.setImage(UIImage(systemName: "fork.knife"), for: .normal)
       $0.tintColor = .white
       $0.backgroundColor = .systemBlue
@@ -113,7 +115,7 @@ final class ResultViewController: UIViewController {
     
     mostReceivedSkillLabel.snp.makeConstraints {
       $0.top.equalTo(graphTitleLabel.snp.bottom).offset(16)
-      $0.leading.equalToSuperview().offset(16)
+      $0.horizontalEdges.equalToSuperview().offset(16)
       $0.height.equalTo(25)
     }
     
@@ -140,7 +142,7 @@ final class ResultViewController: UIViewController {
   private func updateMostReceivedSkillLabel() {
     if let mostSelected = findMostSelectedTraitAndCategory(in: PeerInfoManager.shared.resultData) {
       let occurrences = findMostSelectedTraitCountOccurrences(in: PeerInfoManager.shared.resultData)
-      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 외 \(occurrences - 1) 􁾪"
+      mostReceivedSkillLabel.text = "\(mostSelected.trait) \(mostSelected.category) 外 \(occurrences - 1) 􁾪"
     } else {
       mostReceivedSkillLabel.text = "데이터가 없습니다."
     }

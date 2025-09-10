@@ -61,7 +61,7 @@ final class HeatmapView: UIView {
     let categoryName = categoryNameParts.first ?? cell.categoryName
     let traitName = traitNameParts.first ?? cell.traitName
     
-    tooltipLabel.text = "\(categoryName)\n\(traitName): \(cell.selectionCount)명"
+    tooltipLabel.text = "\(categoryName)\n\(traitName): \(cell.selectionCount)名"
     tooltipLabel.textColor = .black
     tooltipLabel.backgroundColor = .white
     tooltipLabel.textAlignment = .center

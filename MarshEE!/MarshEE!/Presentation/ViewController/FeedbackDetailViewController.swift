@@ -38,7 +38,7 @@ class FeedbackDetailViewController: UIViewController {
   // MARK: - UI Setup
   private func setStyle() {
     view.backgroundColor = .white
-    title = "찌르기"
+    title = "刺す"
     navigationItem.leftBarButtonItem = backButton
     navigationItem.rightBarButtonItem = doneButton
     

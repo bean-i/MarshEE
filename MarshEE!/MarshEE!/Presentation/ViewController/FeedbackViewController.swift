@@ -49,12 +49,12 @@ final class FeedbackViewController: UIViewController {
   }
   
   func setStyle() {
-    title = "찌르기"
+    title = "刺す"
     navigationItem.hidesBackButton = true
     view.backgroundColor = .systemGray6
     
     feedbackGuideLabel.do {
-      $0.text = "SOFT SKILL에 대한 피드백을 시작해요\n각 5가지 항목에서 적합한 블럭을 2개씩 골라주세요"
+      $0.text = "SOFT SKILLへのフィードバックを始めましょう！"
       $0.font = UIFont.sfPro(.body)
       $0.textColor = .black
       $0.numberOfLines = 2
@@ -62,7 +62,7 @@ final class FeedbackViewController: UIViewController {
     }
     
     feedbackTableViewHeader.do {
-      $0.text = "팀원을 눌러서 SOFT SKILL 찌르기"
+      $0.text = "メンバーを選んでSOFT SKILLを刺す"
       $0.font = UIFont.sfPro(.header)
       $0.textColor = .gray
     }
@@ -73,13 +73,13 @@ final class FeedbackViewController: UIViewController {
     }
     
     completedUserCountLabel.do {
-      $0.text = "현재 찌르기 완료 (\(completedUserCount)/\(SessionManager.shared.session.connectedPeers.count))"
+      $0.text = "現在の刺し完了 (\(completedUserCount)/\(SessionManager.shared.session.connectedPeers.count))"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
     }
     
     finishFeedbackButton.do {
-      $0.setTitle("굽기", for: .normal)
+      $0.setTitle("焙る", for: .normal)
       $0.backgroundColor = .systemBlue
       $0.setImage(UIImage(systemName: "flame.fill"), for: .normal)
       $0.tintColor = .white
@@ -90,7 +90,7 @@ final class FeedbackViewController: UIViewController {
     }
     
     finishFeedbackButtonFooterLabel.do {
-      $0.text = "모든 팀원에 대한 평가 완료 후 굽기를 눌러 결과 확인"
+      $0.text = "全メンバーの評価が終わったら「焙る」を押して結果を確認"
       $0.font = UIFont.sfPro(.footer)
       $0.textColor = .gray
     }
