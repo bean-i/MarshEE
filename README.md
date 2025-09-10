@@ -1,57 +1,42 @@
-# MarshEE!
-### MarshEE는 팀원 간 **소프트 스킬**을 상호 평가함으로써 성장을 돕는 **피드백 서비스**입니다.
-마치 Marshmallow처럼 부드러운 다섯 영역의 **SOFT SKILL** <의사소통, 자기개발, 문제해결, 팀워크, 리더십>을 맛있게 구워 음미해봐요  
-<br>
-<a href="https://apps.apple.com/kr/app/marshee/id6738468804">
-  <img src="https://github.com/user-attachments/assets/ee9e9205-3443-490a-acd8-96836ade55b0" alt="앱스토어에서 다운로드" width="80">
-</a>
-<p style="text-align: center;"><b>앱스토어에서 다운로드</b></p>
+# 📝 MarshEE!  
+- **開発期間**: 2024年10月（2週間）  
+- **開発体制**: 3人チーム  
+- **開発目的**:  
+  - チームメンバー同士の **ソフトスキル** を相互に評価し、成長を支援  
+  - 構造化されたフィードバックプロセスにより、負担の少ないフィードバック依頼と改善点の提案を実現  
+  - フィードバック結果を可視化し、ユーザーが自分の成長過程を明確に把握・追跡できるよう支援  
 
-## 서비스 소개
-**AS-IS (현재 상황)**
+## ✅ 主な機能  
+- **1. ソフトスキル評価**
+  - コミュニケーション・自己開発・問題解決・チームワーク・リーダーシップの5領域を選択式で評価  
+- **2. 結果の可視化**
+  - 匿名フィードバック結果をHeatMapで表示し、チーム全体の分布を確認可能  
+- **3. 直感的なUI**
+  - チームメンバーがすぐに参加できる分かりやすい画面設計  
 
-- **SOFT SKILL 피드백의 어려움** <br>
-  현재 많은 팀들이 협업 과정에서 팀원 간의 소프트 스킬을 정량적으로 평가하거나 효과적으로 피드백을 주고받기 어려움을 겪고 있음. <br>
-  <br>
-- **직관적인 피드백 도구 부재**<br>
-  소프트스킬을 평가하는 명확한 도구가 없으며, 즉각적인 피드백과 성장을 체감하기 어려움.<br>
-  <br>
-- **피드백 요청의 어려움**<br>
-  형식적인 회고를 진행할 때 받은 피드백은 구조화되지 않았고, 피드백 요청 자체가 부담스럽거나 어색한 경우가 많음.
+## 💻 技術スタック  
+- **言語**: `Swift`  
+- **フレームワーク**: `UIKit`  
+- **ライブラリ**: `SnapKit`, `Then`  
 
-**TO-BE (이상적인 지향점)**
+## 👨‍💻 担当範囲  
+- **UI/UX実装**
+  - AutoLayoutを用いた画面レイアウト設計・実装  
+- **結果画面構築**
+  - `UICollectionView`でアンケートUI・結果画面を実装
+  - セル再利用による選択状態管理とUI更新処理を実装  
+- **イベント伝達処理**
+  - Delegateパターンを用いてセル内イベントを上位に伝達  
 
-- **구조화된 피드백 시스템**  <br>
-‘찌르기-굽기-음미하기’의 3단계 프로세스를 통해 구조화된 피드백을 제공하여, 피드백 요청을 쉽게 하고, 실질적인 개선점을 제안함.  <br>
-  <br>
-- **SOFT SKILL의 시각화** <br>
-피드백을 통해 성장한 소프트 스킬을 **시각화 도구**로 보여주고, 사용자들이 자신의 발전 과정을 명확하게 인지하고 추적할 수 있음.  <br>
-  <br>
-- **즉각적이고 유연한 피드백 제공**  <br>
-팀원 간의 실시간 피드백을 유도하고, 사용자는 즉각적인 개선점을 받아볼 수 있음  <br>
+## 🔎 工夫した点  
+- **画面レイアウト最適化**
+  - AutoLayoutにより、さまざまなデバイス環境でも安定したUIを提供  
+- **効率的な状態管理**
+  - UICollectionViewのセル再利用を最適化し、選択状態を安定的に保持  
+- **拡張性のある構造設計**
+  - Delegateパターンを適用し、ビューとロジックを分離することで保守性・拡張性を確保  
 
-## 주요 기능
-### 1. 별도의 서버 없이, Multipeer Connectivity 프레임워크를 사용하여 피드백에 참가하고 데이터를 교환합니다.
-<img src="https://github.com/user-attachments/assets/7123f908-e8a8-47ac-b358-79d66d9a6299" width="300" />
-<img src="https://github.com/user-attachments/assets/7eaedb9e-7e5e-4a5e-ba67-5cabf3f26a38" width="300" />
-<img src="https://github.com/user-attachments/assets/9fcb3eed-a260-41a2-8066-da03a1d2aa9a" width="300" />
-
-### 2. 팀원의 의사소통, 자기개발, 문제해결, 팀워크, 리더십을 객관식으로 피드백합니다.
-<img src="https://github.com/user-attachments/assets/fd09d29c-c599-4e3e-b53a-1dda8d407774" width="300" />
-<img src="https://github.com/user-attachments/assets/0a5c38b2-b72e-4d97-983d-959ca0947a14" width="300" />
-
-### 3. 팀원의 익명 피드백 결과를 HeatMap으로 확인할 수 있습니다.
-<img src="https://github.com/user-attachments/assets/a04c951a-b53a-4111-9bdc-e630f9dc870f" width="300" />
-
-## Team 줏대
-|<img src="https://github.com/user-attachments/assets/15854a34-92e7-4319-aa0a-71c0cb447f44"/>|<img src="https://github.com/user-attachments/assets/f8ba30df-2ef2-41ff-9b6f-6f4698b849fb4" />|<img src="https://github.com/user-attachments/assets/9486c6b4-4ca5-4c56-977a-a85bbc1494a6">|
-|:---------:|:---------:|:---------:|
-|[Alex](https://github.com/spark-o-petit)|[Rama](https://github.com/Chandrarla)|[Vicky](https://github.com/bean-i)|
-| `UI/UX, Prodect Management` | `iOS/MultipeerConnectivity` | `iOS/Front-end` | </br>![Image](https://github.com/user-attachments/assets/1ab31609-5ea5-4a23-a612-0bd9fa0f8be0)
-
-## 언어, 라이브러리
-<img src="https://img.shields.io/badge/Swift-F05138?style=flat-square&logo=Swift&logoColor=white"/></p>
-`Multipeer Connectivity`
-`SnapKit`
-`Then`
-  
+## 📷 画面 
+| ホーム | チーム | アンケート | 結果 |
+|:--:|:--:|:--:|:--:|
+| <img src="https://github.com/user-attachments/assets/7123f908-e8a8-47ac-b358-79d66d9a6299" width="300" /> | <img src="https://github.com/user-attachments/assets/9fcb3eed-a260-41a2-8066-da03a1d2aa9a" width="300" /> | <img src="https://github.com/user-attachments/assets/0a5c38b2-b72e-4d97-983d-959ca0947a14" width="300" /> | <img src="https://github.com/user-attachments/assets/a04c951a-b53a-4111-9bdc-e630f9dc870f" width="300" /> |
