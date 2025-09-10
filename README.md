@@ -39,4 +39,4 @@
 ## 📷 画面 
 | ホーム | チーム | アンケート | 結果 |
 |:--:|:--:|:--:|:--:|
-| <img src="https://github.com/user-attachments/assets/7123f908-e8a8-47ac-b358-79d66d9a6299" width="300" /> | <img src="https://github.com/user-attachments/assets/9fcb3eed-a260-41a2-8066-da03a1d2aa9a" width="300" /> | <img src="https://github.com/user-attachments/assets/0a5c38b2-b72e-4d97-983d-959ca0947a14" width="300" /> | <img src="https://github.com/user-attachments/assets/a04c951a-b53a-4111-9bdc-e630f9dc870f" width="300" /> |
+| <img alt="홈" src="https://github.com/user-attachments/assets/ba96913f-8619-4bd7-82fd-d7ce168d8e9d" /> | <img alt="대기" src="https://github.com/user-attachments/assets/84732b60-d225-4fd3-862c-aa3a336e5ac2" /> | <img alt="설문화면" src="https://github.com/user-attachments/assets/79b7aa21-25c6-418e-819e-939b2dea5e3f" /> | <img alt="결과" src="https://github.com/user-attachments/assets/071faec5-9cf7-445b-af22-951afb3a7760" /> |
